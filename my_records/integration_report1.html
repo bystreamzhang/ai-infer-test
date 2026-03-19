@@ -1,0 +1,1094 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8"/>
+    <title id="head-title">integration_report.html</title>
+      <style type="text/css">body {
+  font-family: Helvetica, Arial, sans-serif;
+  font-size: 12px;
+  /* do not increase min-width as some may use split screens */
+  min-width: 800px;
+  color: #999;
+}
+
+h1 {
+  font-size: 24px;
+  color: black;
+}
+
+h2 {
+  font-size: 16px;
+  color: black;
+}
+
+p {
+  color: black;
+}
+
+a {
+  color: #999;
+}
+
+table {
+  border-collapse: collapse;
+}
+
+/******************************
+ * SUMMARY INFORMATION
+ ******************************/
+#environment td {
+  padding: 5px;
+  border: 1px solid #e6e6e6;
+  vertical-align: top;
+}
+#environment tr:nth-child(odd) {
+  background-color: #f6f6f6;
+}
+#environment ul {
+  margin: 0;
+  padding: 0 20px;
+}
+
+/******************************
+ * TEST RESULT COLORS
+ ******************************/
+span.passed,
+.passed .col-result {
+  color: green;
+}
+
+span.skipped,
+span.xfailed,
+span.rerun,
+.skipped .col-result,
+.xfailed .col-result,
+.rerun .col-result {
+  color: orange;
+}
+
+span.error,
+span.failed,
+span.xpassed,
+.error .col-result,
+.failed .col-result,
+.xpassed .col-result {
+  color: red;
+}
+
+.col-links__extra {
+  margin-right: 3px;
+}
+
+/******************************
+ * RESULTS TABLE
+ *
+ * 1. Table Layout
+ * 2. Extra
+ * 3. Sorting items
+ *
+ ******************************/
+/*------------------
+ * 1. Table Layout
+ *------------------*/
+#results-table {
+  border: 1px solid #e6e6e6;
+  color: #999;
+  font-size: 12px;
+  width: 100%;
+}
+#results-table th,
+#results-table td {
+  padding: 5px;
+  border: 1px solid #e6e6e6;
+  text-align: left;
+}
+#results-table th {
+  font-weight: bold;
+}
+
+/*------------------
+ * 2. Extra
+ *------------------*/
+.logwrapper {
+  max-height: 230px;
+  overflow-y: scroll;
+  background-color: #e6e6e6;
+}
+.logwrapper.expanded {
+  max-height: none;
+}
+.logwrapper.expanded .logexpander:after {
+  content: "collapse [-]";
+}
+.logwrapper .logexpander {
+  z-index: 1;
+  position: sticky;
+  top: 10px;
+  width: max-content;
+  border: 1px solid;
+  border-radius: 3px;
+  padding: 5px 7px;
+  margin: 10px 0 10px calc(100% - 80px);
+  cursor: pointer;
+  background-color: #e6e6e6;
+}
+.logwrapper .logexpander:after {
+  content: "expand [+]";
+}
+.logwrapper .logexpander:hover {
+  color: #000;
+  border-color: #000;
+}
+.logwrapper .log {
+  min-height: 40px;
+  position: relative;
+  top: -50px;
+  height: calc(100% + 50px);
+  border: 1px solid #e6e6e6;
+  color: black;
+  display: block;
+  font-family: "Courier New", Courier, monospace;
+  padding: 5px;
+  padding-right: 80px;
+  white-space: pre-wrap;
+}
+
+div.media {
+  border: 1px solid #e6e6e6;
+  float: right;
+  height: 240px;
+  margin: 0 5px;
+  overflow: hidden;
+  width: 320px;
+}
+
+.media-container {
+  display: grid;
+  grid-template-columns: 25px auto 25px;
+  align-items: center;
+  flex: 1 1;
+  overflow: hidden;
+  height: 200px;
+}
+
+.media-container--fullscreen {
+  grid-template-columns: 0px auto 0px;
+}
+
+.media-container__nav--right,
+.media-container__nav--left {
+  text-align: center;
+  cursor: pointer;
+}
+
+.media-container__viewport {
+  cursor: pointer;
+  text-align: center;
+  height: inherit;
+}
+.media-container__viewport img,
+.media-container__viewport video {
+  object-fit: cover;
+  width: 100%;
+  max-height: 100%;
+}
+
+.media__name,
+.media__counter {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-around;
+  flex: 0 0 25px;
+  align-items: center;
+}
+
+.collapsible td:not(.col-links) {
+  cursor: pointer;
+}
+.collapsible td:not(.col-links):hover::after {
+  color: #bbb;
+  font-style: italic;
+  cursor: pointer;
+}
+
+.col-result {
+  width: 130px;
+}
+.col-result:hover::after {
+  content: " (hide details)";
+}
+
+.col-result.collapsed:hover::after {
+  content: " (show details)";
+}
+
+#environment-header h2:hover::after {
+  content: " (hide details)";
+  color: #bbb;
+  font-style: italic;
+  cursor: pointer;
+  font-size: 12px;
+}
+
+#environment-header.collapsed h2:hover::after {
+  content: " (show details)";
+  color: #bbb;
+  font-style: italic;
+  cursor: pointer;
+  font-size: 12px;
+}
+
+/*------------------
+ * 3. Sorting items
+ *------------------*/
+.sortable {
+  cursor: pointer;
+}
+.sortable.desc:after {
+  content: " ";
+  position: relative;
+  left: 5px;
+  bottom: -12.5px;
+  border: 10px solid #4caf50;
+  border-bottom: 0;
+  border-left-color: transparent;
+  border-right-color: transparent;
+}
+.sortable.asc:after {
+  content: " ";
+  position: relative;
+  left: 5px;
+  bottom: 12.5px;
+  border: 10px solid #4caf50;
+  border-top: 0;
+  border-left-color: transparent;
+  border-right-color: transparent;
+}
+
+.hidden, .summary__reload__button.hidden {
+  display: none;
+}
+
+.summary__data {
+  flex: 0 0 550px;
+}
+.summary__reload {
+  flex: 1 1;
+  display: flex;
+  justify-content: center;
+}
+.summary__reload__button {
+  flex: 0 0 300px;
+  display: flex;
+  color: white;
+  font-weight: bold;
+  background-color: #4caf50;
+  text-align: center;
+  justify-content: center;
+  align-items: center;
+  border-radius: 3px;
+  cursor: pointer;
+}
+.summary__reload__button:hover {
+  background-color: #46a049;
+}
+.summary__spacer {
+  flex: 0 0 550px;
+}
+
+.controls {
+  display: flex;
+  justify-content: space-between;
+}
+
+.filters,
+.collapse {
+  display: flex;
+  align-items: center;
+}
+.filters button,
+.collapse button {
+  color: #999;
+  border: none;
+  background: none;
+  cursor: pointer;
+  text-decoration: underline;
+}
+.filters button:hover,
+.collapse button:hover {
+  color: #ccc;
+}
+
+.filter__label {
+  margin-right: 10px;
+}
+
+      </style>
+    
+  </head>
+  <body>
+    <h1 id="title">integration_report.html</h1>
+    <p>Report generated on 17-Mar-2026 at 16:10:17 by <a href="https://pypi.python.org/pypi/pytest-html">pytest-html</a>
+        v4.2.0</p>
+    <div id="environment-header">
+      <h2>Environment</h2>
+    </div>
+    <table id="environment"></table>
+    <!-- TEMPLATES -->
+      <template id="template_environment_row">
+      <tr>
+        <td></td>
+        <td></td>
+      </tr>
+    </template>
+    <template id="template_results-table__body--empty">
+      <tbody class="results-table-row">
+        <tr id="not-found-message">
+          <td colspan="4">No results found. Check the filters.</td>
+        </tr>
+      </tbody>
+    </template>
+    <template id="template_results-table__tbody">
+      <tbody class="results-table-row">
+        <tr class="collapsible">
+        </tr>
+        <tr class="extras-row">
+          <td class="extra" colspan="4">
+            <div class="extraHTML"></div>
+            <div class="media">
+              <div class="media-container">
+                  <div class="media-container__nav--left">&lt;</div>
+                  <div class="media-container__viewport">
+                    <img src="" />
+                    <video controls>
+                      <source src="" type="video/mp4">
+                    </video>
+                  </div>
+                  <div class="media-container__nav--right">&gt;</div>
+                </div>
+                <div class="media__name"></div>
+                <div class="media__counter"></div>
+            </div>
+            <div class="logwrapper">
+              <div class="logexpander"></div>
+              <div class="log"></div>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </template>
+    <!-- END TEMPLATES -->
+    <div class="summary">
+      <div class="summary__data">
+        <h2>Summary</h2>
+        <div class="additional-summary prefix">
+        </div>
+        <p class="run-count">25 tests took 00:00:04.</p>
+        <p class="filter">(Un)check the boxes to filter the results.</p>
+        <div class="summary__reload">
+          <div class="summary__reload__button hidden" onclick="location.reload()">
+            <div>There are still tests running. <br />Reload this page to get the latest results!</div>
+          </div>
+        </div>
+        <div class="summary__spacer"></div>
+        <div class="controls">
+          <div class="filters">
+            <input checked="true" class="filter" name="filter_checkbox" type="checkbox" data-test-result="failed" >
+            <span class="failed">24 Failed,</span>
+            <input checked="true" class="filter" name="filter_checkbox" type="checkbox" data-test-result="passed" >
+            <span class="passed">1 Passed,</span>
+            <input checked="true" class="filter" name="filter_checkbox" type="checkbox" data-test-result="skipped" disabled>
+            <span class="skipped">0 Skipped,</span>
+            <input checked="true" class="filter" name="filter_checkbox" type="checkbox" data-test-result="xfailed" disabled>
+            <span class="xfailed">0 Expected failures,</span>
+            <input checked="true" class="filter" name="filter_checkbox" type="checkbox" data-test-result="xpassed" disabled>
+            <span class="xpassed">0 Unexpected passes,</span>
+            <input checked="true" class="filter" name="filter_checkbox" type="checkbox" data-test-result="error" disabled>
+            <span class="error">0 Errors,</span>
+            <input checked="true" class="filter" name="filter_checkbox" type="checkbox" data-test-result="rerun" disabled>
+            <span class="rerun">0 Reruns</span>
+            <input checked="true" class="filter" name="filter_checkbox" type="checkbox" data-test-result="retried" disabled>
+            <span class="retried">0 Retried,</span>
+          </div>
+          <div class="collapse">
+            <button id="show_all_details">Show all details</button>&nbsp;/&nbsp;<button id="hide_all_details">Hide all details</button>
+          </div>
+        </div>
+      </div>
+      <div class="additional-summary summary">
+      </div>
+      <div class="additional-summary postfix">
+      </div>
+    </div>
+    <table id="results-table">
+      <thead id="results-table-head">
+        <tr>
+          <th class="sortable" data-column-type="result">Result</th>
+          <th class="sortable" data-column-type="testId">Test</th>
+          <th class="sortable" data-column-type="duration">Duration</th>
+          <th>Links</th>
+        </tr>
+      </thead>
+    </table>
+  <footer>
+    <div id="data-container" data-jsonblob="{&#34;environment&#34;: {&#34;Python&#34;: &#34;3.11.15&#34;, &#34;Platform&#34;: &#34;Windows-10-10.0.26200-SP0&#34;, &#34;Packages&#34;: {&#34;pytest&#34;: &#34;9.0.2&#34;, &#34;pluggy&#34;: &#34;1.6.0&#34;}, &#34;Plugins&#34;: {&#34;anyio&#34;: &#34;4.12.1&#34;, &#34;hypothesis&#34;: &#34;6.151.9&#34;, &#34;locust&#34;: &#34;2.43.3&#34;, &#34;asyncio&#34;: &#34;1.3.0&#34;, &#34;benchmark&#34;: &#34;5.2.3&#34;, &#34;cov&#34;: &#34;7.0.0&#34;, &#34;html&#34;: &#34;4.2.0&#34;, &#34;metadata&#34;: &#34;3.1.1&#34;}, &#34;JAVA_HOME&#34;: &#34;F:\\java8\\jdk&#34;}, &#34;tests&#34;: {&#34;tests/integration/test_api_endpoints.py::test_classify_valid_request_returns_200&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Failed&#34;, &#34;testId&#34;: &#34;tests/integration/test_api_endpoints.py::test_classify_valid_request_returns_200&#34;, &#34;duration&#34;: &#34;10 ms&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Failed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/integration/test_api_endpoints.py::test_classify_valid_request_returns_200&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;10 ms&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;app_client = &amp;lt;httpx.AsyncClient object at 0x000001D87C4CA4D0&amp;gt;\n\n    @pytest.mark.asyncio\n    async def test_classify_valid_request_returns_200(app_client: AsyncClient) -&amp;gt; None:\n        &amp;quot;&amp;quot;&amp;quot;\u6b63\u5411\uff1a\u6b63\u5e38\u6587\u672c\u5206\u7c7b\u8bf7\u6c42\u5e94\u8fd4\u56de 200 \u53ca\u5b8c\u6574 JSON \u7ed3\u6784\u3002&amp;quot;&amp;quot;&amp;quot;\n&amp;gt;       response = await app_client.post(\n            &amp;quot;/api/v1/classify&amp;quot;,\n            json={&amp;quot;text&amp;quot;: &amp;quot;\u4e2d\u56fd\u961f\u8d62\u5f97\u4e16\u754c\u676f\u5c0f\u7ec4\u8d5b\u9996\u80dc&amp;quot;},\n        )\n\ntests\\integration\\test_api_endpoints.py:36: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\httpx\\_client.py:1859: in post\n    return await self.request(\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\httpx\\_client.py:1540: in request\n    return await self.send(request, auth=auth, follow_redirects=follow_redirects)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\httpx\\_client.py:1629: in send\n    response = await self._send_handling_auth(\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\httpx\\_client.py:1657: in _send_handling_auth\n    response = await self._send_handling_redirects(\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\httpx\\_client.py:1694: in _send_handling_redirects\n    response = await self._send_single_request(request)\n               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\httpx\\_client.py:1730: in _send_single_request\n    response = await transport.handle_async_request(request)\n               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\httpx\\_transports\\asgi.py:170: in handle_async_request\n    await self.app(scope, receive, send)\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\fastapi\\applications.py:1160: in __call__\n    await super().__call__(scope, receive, send)\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\starlette\\applications.py:107: in __call__\n    await self.middleware_stack(scope, receive, send)\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\starlette\\middleware\\errors.py:186: in __call__\n    raise exc\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\starlette\\middleware\\errors.py:164: in __call__\n    await self.app(scope, receive, _send)\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\starlette\\middleware\\base.py:191: in __call__\n    with recv_stream, send_stream, collapse_excgroups():\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\contextlib.py:158: in __exit__\n    self.gen.throw(typ, value, traceback)\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\starlette\\_utils.py:87: in collapse_excgroups\n    raise exc\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\starlette\\middleware\\base.py:193: in __call__\n    response = await self.dispatch_func(request, call_next)\n               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nsrc\\middleware\\rate_limiter.py:218: in dispatch\n    response = await call_next(request)\n               ^^^^^^^^^^^^^^^^^^^^^^^^\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\starlette\\middleware\\base.py:168: in call_next\n    raise app_exc from app_exc.__cause__ or app_exc.__context__\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\starlette\\middleware\\base.py:144: in coro\n    await self.app(scope, receive_or_disconnect, send_no_error)\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\starlette\\middleware\\exceptions.py:63: in __call__\n    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\starlette\\_exception_handler.py:53: in wrapped_app\n    raise exc\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\starlette\\_exception_handler.py:42: in wrapped_app\n    await app(scope, receive, sender)\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\fastapi\\middleware\\asyncexitstack.py:18: in __call__\n    await self.app(scope, receive, send)\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\starlette\\routing.py:716: in __call__\n    await self.middleware_stack(scope, receive, send)\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\starlette\\routing.py:736: in app\n    await route.handle(scope, receive, send)\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\starlette\\routing.py:290: in handle\n    await self.app(scope, receive, send)\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\fastapi\\routing.py:130: in app\n    await wrap_app_handling_exceptions(app, request)(scope, receive, send)\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\starlette\\_exception_handler.py:53: in wrapped_app\n    raise exc\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\starlette\\_exception_handler.py:42: in wrapped_app\n    await app(scope, receive, sender)\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\fastapi\\routing.py:116: in app\n    response = await f(request)\n               ^^^^^^^^^^^^^^^^\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\fastapi\\routing.py:453: in app\n    solved_result = await solve_dependencies(\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\fastapi\\dependencies\\utils.py:677: in solve_dependencies\n    solved = await run_in_threadpool(call, **solved_result.values)\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\starlette\\concurrency.py:32: in run_in_threadpool\n    return await anyio.to_thread.run_sync(func)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nc:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\anyio\\to_thread.py:63: in run_sync\n    return await get_async_backend().run_sync_in_worker_thread(\nc:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\anyio\\_backends\\_asyncio.py:2502: in run_sync_in_worker_thread\n    return await future\n           ^^^^^^^^^^^^\nc:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\anyio\\_backends\\_asyncio.py:986: in run\n    result = context.run(func, *args)\n             ^^^^^^^^^^^^^^^^^^^^^^^^\n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n\n    def get_engine() -&amp;gt; InferenceEngine:\n        &amp;quot;&amp;quot;&amp;quot;\u4f9d\u8d56\u6ce8\u5165\uff1a\u63d0\u4f9b\u5168\u5c40 InferenceEngine \u5b9e\u4f8b\u3002\n    \n        Returns:\n            InferenceEngine \u5b9e\u4f8b\uff08\u5728 lifespan \u4e2d\u521d\u59cb\u5316\uff09\u3002\n    \n        Raises:\n            RuntimeError: \u5728 lifespan \u521d\u59cb\u5316\u524d\u8c03\u7528\u65f6\uff08\u6b63\u5e38\u4e0d\u5e94\u53d1\u751f\uff09\u3002\n        &amp;quot;&amp;quot;&amp;quot;\n        if _inference_engine is None:\n&amp;gt;           raise RuntimeError(&amp;quot;InferenceEngine not initialized&amp;quot;)\nE           RuntimeError: InferenceEngine not initialized\n\nsrc\\app.py:186: RuntimeError\n\n----------------------------- Captured stdout call -----------------------------\n2026-03-17 16:10:13 [error    ] unhandled_exception            [src.app] exc_msg=&amp;#x27;InferenceEngine not initialized&amp;#x27; exc_type=RuntimeError\n&#34;}], &#34;tests/integration/test_api_endpoints.py::test_classify_valid_request_confidence_in_range&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Failed&#34;, &#34;testId&#34;: &#34;tests/integration/test_api_endpoints.py::test_classify_valid_request_confidence_in_range&#34;, &#34;duration&#34;: &#34;5 ms&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Failed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/integration/test_api_endpoints.py::test_classify_valid_request_confidence_in_range&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;5 ms&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;app_client = &amp;lt;httpx.AsyncClient object at 0x000001D87C4CA4D0&amp;gt;\n\n    @pytest.mark.asyncio\n    async def test_classify_valid_request_confidence_in_range(app_client: AsyncClient) -&amp;gt; None:\n        &amp;quot;&amp;quot;&amp;quot;\u6b63\u5411\uff1a\u8fd4\u56de\u7684 confidence \u5e94\u5728 [0, 1] \u533a\u95f4\u5185\u3002&amp;quot;&amp;quot;&amp;quot;\n&amp;gt;       response = await app_client.post(\n            &amp;quot;/api/v1/classify&amp;quot;,\n            json={&amp;quot;text&amp;quot;: &amp;quot;\u65b0\u6b3e\u82af\u7247\u91c7\u75283nm\u5de5\u827a\u5236\u7a0b&amp;quot;},\n        )\n\ntests\\integration\\test_api_endpoints.py:51: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\httpx\\_client.py:1859: in post\n    return await self.request(\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\httpx\\_client.py:1540: in request\n    return await self.send(request, auth=auth, follow_redirects=follow_redirects)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\httpx\\_client.py:1629: in send\n    response = await self._send_handling_auth(\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\httpx\\_client.py:1657: in _send_handling_auth\n    response = await self._send_handling_redirects(\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\httpx\\_client.py:1694: in _send_handling_redirects\n    response = await self._send_single_request(request)\n               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\httpx\\_client.py:1730: in _send_single_request\n    response = await transport.handle_async_request(request)\n               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\httpx\\_transports\\asgi.py:170: in handle_async_request\n    await self.app(scope, receive, send)\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\fastapi\\applications.py:1160: in __call__\n    await super().__call__(scope, receive, send)\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\starlette\\applications.py:107: in __call__\n    await self.middleware_stack(scope, receive, send)\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\starlette\\middleware\\errors.py:186: in __call__\n    raise exc\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\starlette\\middleware\\errors.py:164: in __call__\n    await self.app(scope, receive, _send)\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\starlette\\middleware\\base.py:191: in __call__\n    with recv_stream, send_stream, collapse_excgroups():\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\contextlib.py:158: in __exit__\n    self.gen.throw(typ, value, traceback)\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\starlette\\_utils.py:87: in collapse_excgroups\n    raise exc\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\starlette\\middleware\\base.py:193: in __call__\n    response = await self.dispatch_func(request, call_next)\n               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nsrc\\middleware\\rate_limiter.py:218: in dispatch\n    response = await call_next(request)\n               ^^^^^^^^^^^^^^^^^^^^^^^^\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\starlette\\middleware\\base.py:168: in call_next\n    raise app_exc from app_exc.__cause__ or app_exc.__context__\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\starlette\\middleware\\base.py:144: in coro\n    await self.app(scope, receive_or_disconnect, send_no_error)\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\starlette\\middleware\\exceptions.py:63: in __call__\n    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\starlette\\_exception_handler.py:53: in wrapped_app\n    raise exc\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\starlette\\_exception_handler.py:42: in wrapped_app\n    await app(scope, receive, sender)\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\fastapi\\middleware\\asyncexitstack.py:18: in __call__\n    await self.app(scope, receive, send)\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\starlette\\routing.py:716: in __call__\n    await self.middleware_stack(scope, receive, send)\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\starlette\\routing.py:736: in app\n    await route.handle(scope, receive, send)\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\starlette\\routing.py:290: in handle\n    await self.app(scope, receive, send)\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\fastapi\\routing.py:130: in app\n    await wrap_app_handling_exceptions(app, request)(scope, receive, send)\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\starlette\\_exception_handler.py:53: in wrapped_app\n    raise exc\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\starlette\\_exception_handler.py:42: in wrapped_app\n    await app(scope, receive, sender)\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\fastapi\\routing.py:116: in app\n    response = await f(request)\n               ^^^^^^^^^^^^^^^^\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\fastapi\\routing.py:453: in app\n    solved_result = await solve_dependencies(\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\fastapi\\dependencies\\utils.py:677: in solve_dependencies\n    solved = await run_in_threadpool(call, **solved_result.values)\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\starlette\\concurrency.py:32: in run_in_threadpool\n    return await anyio.to_thread.run_sync(func)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nc:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\anyio\\to_thread.py:63: in run_sync\n    return await get_async_backend().run_sync_in_worker_thread(\nc:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\anyio\\_backends\\_asyncio.py:2502: in run_sync_in_worker_thread\n    return await future\n           ^^^^^^^^^^^^\nc:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\anyio\\_backends\\_asyncio.py:986: in run\n    result = context.run(func, *args)\n             ^^^^^^^^^^^^^^^^^^^^^^^^\n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n\n    def get_engine() -&amp;gt; InferenceEngine:\n        &amp;quot;&amp;quot;&amp;quot;\u4f9d\u8d56\u6ce8\u5165\uff1a\u63d0\u4f9b\u5168\u5c40 InferenceEngine \u5b9e\u4f8b\u3002\n    \n        Returns:\n            InferenceEngine \u5b9e\u4f8b\uff08\u5728 lifespan \u4e2d\u521d\u59cb\u5316\uff09\u3002\n    \n        Raises:\n            RuntimeError: \u5728 lifespan \u521d\u59cb\u5316\u524d\u8c03\u7528\u65f6\uff08\u6b63\u5e38\u4e0d\u5e94\u53d1\u751f\uff09\u3002\n        &amp;quot;&amp;quot;&amp;quot;\n        if _inference_engine is None:\n&amp;gt;           raise RuntimeError(&amp;quot;InferenceEngine not initialized&amp;quot;)\nE           RuntimeError: InferenceEngine not initialized\n\nsrc\\app.py:186: RuntimeError\n\n----------------------------- Captured stdout call -----------------------------\n2026-03-17 16:10:14 [error    ] unhandled_exception            [src.app] exc_msg=&amp;#x27;InferenceEngine not initialized&amp;#x27; exc_type=RuntimeError\n&#34;}], &#34;tests/integration/test_api_endpoints.py::test_classify_missing_text_field_returns_422&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Failed&#34;, &#34;testId&#34;: &#34;tests/integration/test_api_endpoints.py::test_classify_missing_text_field_returns_422&#34;, &#34;duration&#34;: &#34;4 ms&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Failed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/integration/test_api_endpoints.py::test_classify_missing_text_field_returns_422&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;4 ms&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;app_client = &amp;lt;httpx.AsyncClient object at 0x000001D87C4CA4D0&amp;gt;\n\n    @pytest.mark.asyncio\n    async def test_classify_missing_text_field_returns_422(app_client: AsyncClient) -&amp;gt; None:\n        &amp;quot;&amp;quot;&amp;quot;\u53cd\u5411\uff1a\u7f3a\u5c11 text \u5b57\u6bb5\u5e94\u8fd4\u56de 422 Unprocessable Entity\uff08Pydantic \u6821\u9a8c\u5931\u8d25\uff09\u3002&amp;quot;&amp;quot;&amp;quot;\n&amp;gt;       response = await app_client.post(\n            &amp;quot;/api/v1/classify&amp;quot;,\n            json={&amp;quot;wrong_field&amp;quot;: &amp;quot;hello&amp;quot;},\n        )\n\ntests\\integration\\test_api_endpoints.py:63: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\httpx\\_client.py:1859: in post\n    return await self.request(\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\httpx\\_client.py:1540: in request\n    return await self.send(request, auth=auth, follow_redirects=follow_redirects)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\httpx\\_client.py:1629: in send\n    response = await self._send_handling_auth(\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\httpx\\_client.py:1657: in _send_handling_auth\n    response = await self._send_handling_redirects(\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\httpx\\_client.py:1694: in _send_handling_redirects\n    response = await self._send_single_request(request)\n               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\httpx\\_client.py:1730: in _send_single_request\n    response = await transport.handle_async_request(request)\n               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\httpx\\_transports\\asgi.py:170: in handle_async_request\n    await self.app(scope, receive, send)\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\fastapi\\applications.py:1160: in __call__\n    await super().__call__(scope, receive, send)\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\starlette\\applications.py:107: in __call__\n    await self.middleware_stack(scope, receive, send)\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\starlette\\middleware\\errors.py:186: in __call__\n    raise exc\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\starlette\\middleware\\errors.py:164: in __call__\n    await self.app(scope, receive, _send)\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\starlette\\middleware\\base.py:191: in __call__\n    with recv_stream, send_stream, collapse_excgroups():\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\contextlib.py:158: in __exit__\n    self.gen.throw(typ, value, traceback)\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\starlette\\_utils.py:87: in collapse_excgroups\n    raise exc\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\starlette\\middleware\\base.py:193: in __call__\n    response = await self.dispatch_func(request, call_next)\n               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nsrc\\middleware\\rate_limiter.py:218: in dispatch\n    response = await call_next(request)\n               ^^^^^^^^^^^^^^^^^^^^^^^^\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\starlette\\middleware\\base.py:168: in call_next\n    raise app_exc from app_exc.__cause__ or app_exc.__context__\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\starlette\\middleware\\base.py:144: in coro\n    await self.app(scope, receive_or_disconnect, send_no_error)\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\starlette\\middleware\\exceptions.py:63: in __call__\n    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\starlette\\_exception_handler.py:53: in wrapped_app\n    raise exc\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\starlette\\_exception_handler.py:42: in wrapped_app\n    await app(scope, receive, sender)\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\fastapi\\middleware\\asyncexitstack.py:18: in __call__\n    await self.app(scope, receive, send)\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\starlette\\routing.py:716: in __call__\n    await self.middleware_stack(scope, receive, send)\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\starlette\\routing.py:736: in app\n    await route.handle(scope, receive, send)\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\starlette\\routing.py:290: in handle\n    await self.app(scope, receive, send)\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\fastapi\\routing.py:130: in app\n    await wrap_app_handling_exceptions(app, request)(scope, receive, send)\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\starlette\\_exception_handler.py:53: in wrapped_app\n    raise exc\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\starlette\\_exception_handler.py:42: in wrapped_app\n    await app(scope, receive, sender)\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\fastapi\\routing.py:116: in app\n    response = await f(request)\n               ^^^^^^^^^^^^^^^^\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\fastapi\\routing.py:453: in app\n    solved_result = await solve_dependencies(\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\fastapi\\dependencies\\utils.py:677: in solve_dependencies\n    solved = await run_in_threadpool(call, **solved_result.values)\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\starlette\\concurrency.py:32: in run_in_threadpool\n    return await anyio.to_thread.run_sync(func)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nc:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\anyio\\to_thread.py:63: in run_sync\n    return await get_async_backend().run_sync_in_worker_thread(\nc:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\anyio\\_backends\\_asyncio.py:2502: in run_sync_in_worker_thread\n    return await future\n           ^^^^^^^^^^^^\nc:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\anyio\\_backends\\_asyncio.py:986: in run\n    result = context.run(func, *args)\n             ^^^^^^^^^^^^^^^^^^^^^^^^\n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n\n    def get_engine() -&amp;gt; InferenceEngine:\n        &amp;quot;&amp;quot;&amp;quot;\u4f9d\u8d56\u6ce8\u5165\uff1a\u63d0\u4f9b\u5168\u5c40 InferenceEngine \u5b9e\u4f8b\u3002\n    \n        Returns:\n            InferenceEngine \u5b9e\u4f8b\uff08\u5728 lifespan \u4e2d\u521d\u59cb\u5316\uff09\u3002\n    \n        Raises:\n            RuntimeError: \u5728 lifespan \u521d\u59cb\u5316\u524d\u8c03\u7528\u65f6\uff08\u6b63\u5e38\u4e0d\u5e94\u53d1\u751f\uff09\u3002\n        &amp;quot;&amp;quot;&amp;quot;\n        if _inference_engine is None:\n&amp;gt;           raise RuntimeError(&amp;quot;InferenceEngine not initialized&amp;quot;)\nE           RuntimeError: InferenceEngine not initialized\n\nsrc\\app.py:186: RuntimeError\n\n----------------------------- Captured stdout call -----------------------------\n2026-03-17 16:10:14 [error    ] unhandled_exception            [src.app] exc_msg=&amp;#x27;InferenceEngine not initialized&amp;#x27; exc_type=RuntimeError\n&#34;}], &#34;tests/integration/test_api_endpoints.py::test_classify_empty_text_returns_422&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Failed&#34;, &#34;testId&#34;: &#34;tests/integration/test_api_endpoints.py::test_classify_empty_text_returns_422&#34;, &#34;duration&#34;: &#34;5 ms&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Failed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/integration/test_api_endpoints.py::test_classify_empty_text_returns_422&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;5 ms&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;app_client = &amp;lt;httpx.AsyncClient object at 0x000001D87C4CA4D0&amp;gt;\n\n    @pytest.mark.asyncio\n    async def test_classify_empty_text_returns_422(app_client: AsyncClient) -&amp;gt; None:\n        &amp;quot;&amp;quot;&amp;quot;\u8fb9\u754c\uff1a\u7a7a\u5b57\u7b26\u4e32\u5e94\u88ab Field(min_length=1) \u62e6\u622a\uff0c\u8fd4\u56de 422\u3002&amp;quot;&amp;quot;&amp;quot;\n&amp;gt;       response = await app_client.post(\n            &amp;quot;/api/v1/classify&amp;quot;,\n            json={&amp;quot;text&amp;quot;: &amp;quot;&amp;quot;},\n        )\n\ntests\\integration\\test_api_endpoints.py:73: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\httpx\\_client.py:1859: in post\n    return await self.request(\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\httpx\\_client.py:1540: in request\n    return await self.send(request, auth=auth, follow_redirects=follow_redirects)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\httpx\\_client.py:1629: in send\n    response = await self._send_handling_auth(\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\httpx\\_client.py:1657: in _send_handling_auth\n    response = await self._send_handling_redirects(\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\httpx\\_client.py:1694: in _send_handling_redirects\n    response = await self._send_single_request(request)\n               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\httpx\\_client.py:1730: in _send_single_request\n    response = await transport.handle_async_request(request)\n               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\httpx\\_transports\\asgi.py:170: in handle_async_request\n    await self.app(scope, receive, send)\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\fastapi\\applications.py:1160: in __call__\n    await super().__call__(scope, receive, send)\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\starlette\\applications.py:107: in __call__\n    await self.middleware_stack(scope, receive, send)\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\starlette\\middleware\\errors.py:186: in __call__\n    raise exc\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\starlette\\middleware\\errors.py:164: in __call__\n    await self.app(scope, receive, _send)\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\starlette\\middleware\\base.py:191: in __call__\n    with recv_stream, send_stream, collapse_excgroups():\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\contextlib.py:158: in __exit__\n    self.gen.throw(typ, value, traceback)\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\starlette\\_utils.py:87: in collapse_excgroups\n    raise exc\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\starlette\\middleware\\base.py:193: in __call__\n    response = await self.dispatch_func(request, call_next)\n               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nsrc\\middleware\\rate_limiter.py:218: in dispatch\n    response = await call_next(request)\n               ^^^^^^^^^^^^^^^^^^^^^^^^\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\starlette\\middleware\\base.py:168: in call_next\n    raise app_exc from app_exc.__cause__ or app_exc.__context__\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\starlette\\middleware\\base.py:144: in coro\n    await self.app(scope, receive_or_disconnect, send_no_error)\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\starlette\\middleware\\exceptions.py:63: in __call__\n    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\starlette\\_exception_handler.py:53: in wrapped_app\n    raise exc\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\starlette\\_exception_handler.py:42: in wrapped_app\n    await app(scope, receive, sender)\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\fastapi\\middleware\\asyncexitstack.py:18: in __call__\n    await self.app(scope, receive, send)\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\starlette\\routing.py:716: in __call__\n    await self.middleware_stack(scope, receive, send)\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\starlette\\routing.py:736: in app\n    await route.handle(scope, receive, send)\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\starlette\\routing.py:290: in handle\n    await self.app(scope, receive, send)\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\fastapi\\routing.py:130: in app\n    await wrap_app_handling_exceptions(app, request)(scope, receive, send)\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\starlette\\_exception_handler.py:53: in wrapped_app\n    raise exc\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\starlette\\_exception_handler.py:42: in wrapped_app\n    await app(scope, receive, sender)\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\fastapi\\routing.py:116: in app\n    response = await f(request)\n               ^^^^^^^^^^^^^^^^\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\fastapi\\routing.py:453: in app\n    solved_result = await solve_dependencies(\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\fastapi\\dependencies\\utils.py:677: in solve_dependencies\n    solved = await run_in_threadpool(call, **solved_result.values)\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\starlette\\concurrency.py:32: in run_in_threadpool\n    return await anyio.to_thread.run_sync(func)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nc:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\anyio\\to_thread.py:63: in run_sync\n    return await get_async_backend().run_sync_in_worker_thread(\nc:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\anyio\\_backends\\_asyncio.py:2502: in run_sync_in_worker_thread\n    return await future\n           ^^^^^^^^^^^^\nc:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\anyio\\_backends\\_asyncio.py:986: in run\n    result = context.run(func, *args)\n             ^^^^^^^^^^^^^^^^^^^^^^^^\n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n\n    def get_engine() -&amp;gt; InferenceEngine:\n        &amp;quot;&amp;quot;&amp;quot;\u4f9d\u8d56\u6ce8\u5165\uff1a\u63d0\u4f9b\u5168\u5c40 InferenceEngine \u5b9e\u4f8b\u3002\n    \n        Returns:\n            InferenceEngine \u5b9e\u4f8b\uff08\u5728 lifespan \u4e2d\u521d\u59cb\u5316\uff09\u3002\n    \n        Raises:\n            RuntimeError: \u5728 lifespan \u521d\u59cb\u5316\u524d\u8c03\u7528\u65f6\uff08\u6b63\u5e38\u4e0d\u5e94\u53d1\u751f\uff09\u3002\n        &amp;quot;&amp;quot;&amp;quot;\n        if _inference_engine is None:\n&amp;gt;           raise RuntimeError(&amp;quot;InferenceEngine not initialized&amp;quot;)\nE           RuntimeError: InferenceEngine not initialized\n\nsrc\\app.py:186: RuntimeError\n\n----------------------------- Captured stdout call -----------------------------\n2026-03-17 16:10:14 [error    ] unhandled_exception            [src.app] exc_msg=&amp;#x27;InferenceEngine not initialized&amp;#x27; exc_type=RuntimeError\n&#34;}], &#34;tests/integration/test_api_endpoints.py::test_classify_text_at_max_length_returns_200&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Failed&#34;, &#34;testId&#34;: &#34;tests/integration/test_api_endpoints.py::test_classify_text_at_max_length_returns_200&#34;, &#34;duration&#34;: &#34;5 ms&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Failed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/integration/test_api_endpoints.py::test_classify_text_at_max_length_returns_200&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;5 ms&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;app_client = &amp;lt;httpx.AsyncClient object at 0x000001D87C4CA4D0&amp;gt;\n\n    @pytest.mark.asyncio\n    async def test_classify_text_at_max_length_returns_200(app_client: AsyncClient) -&amp;gt; None:\n        &amp;quot;&amp;quot;&amp;quot;\u8fb9\u754c\uff1a\u6070\u597d 10000 \u5b57\u7b26\u7684\u6587\u672c\u5e94\u88ab\u63a5\u53d7\uff0c\u8fd4\u56de 200\u3002&amp;quot;&amp;quot;&amp;quot;\n        text = &amp;quot;\u6d4b&amp;quot; * 10000\n&amp;gt;       response = await app_client.post(&amp;quot;/api/v1/classify&amp;quot;, json={&amp;quot;text&amp;quot;: text})\n                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n\ntests\\integration\\test_api_endpoints.py:84: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\httpx\\_client.py:1859: in post\n    return await self.request(\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\httpx\\_client.py:1540: in request\n    return await self.send(request, auth=auth, follow_redirects=follow_redirects)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\httpx\\_client.py:1629: in send\n    response = await self._send_handling_auth(\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\httpx\\_client.py:1657: in _send_handling_auth\n    response = await self._send_handling_redirects(\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\httpx\\_client.py:1694: in _send_handling_redirects\n    response = await self._send_single_request(request)\n               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\httpx\\_client.py:1730: in _send_single_request\n    response = await transport.handle_async_request(request)\n               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\httpx\\_transports\\asgi.py:170: in handle_async_request\n    await self.app(scope, receive, send)\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\fastapi\\applications.py:1160: in __call__\n    await super().__call__(scope, receive, send)\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\starlette\\applications.py:107: in __call__\n    await self.middleware_stack(scope, receive, send)\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\starlette\\middleware\\errors.py:186: in __call__\n    raise exc\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\starlette\\middleware\\errors.py:164: in __call__\n    await self.app(scope, receive, _send)\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\starlette\\middleware\\base.py:191: in __call__\n    with recv_stream, send_stream, collapse_excgroups():\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\contextlib.py:158: in __exit__\n    self.gen.throw(typ, value, traceback)\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\starlette\\_utils.py:87: in collapse_excgroups\n    raise exc\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\starlette\\middleware\\base.py:193: in __call__\n    response = await self.dispatch_func(request, call_next)\n               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nsrc\\middleware\\rate_limiter.py:218: in dispatch\n    response = await call_next(request)\n               ^^^^^^^^^^^^^^^^^^^^^^^^\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\starlette\\middleware\\base.py:168: in call_next\n    raise app_exc from app_exc.__cause__ or app_exc.__context__\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\starlette\\middleware\\base.py:144: in coro\n    await self.app(scope, receive_or_disconnect, send_no_error)\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\starlette\\middleware\\exceptions.py:63: in __call__\n    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\starlette\\_exception_handler.py:53: in wrapped_app\n    raise exc\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\starlette\\_exception_handler.py:42: in wrapped_app\n    await app(scope, receive, sender)\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\fastapi\\middleware\\asyncexitstack.py:18: in __call__\n    await self.app(scope, receive, send)\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\starlette\\routing.py:716: in __call__\n    await self.middleware_stack(scope, receive, send)\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\starlette\\routing.py:736: in app\n    await route.handle(scope, receive, send)\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\starlette\\routing.py:290: in handle\n    await self.app(scope, receive, send)\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\fastapi\\routing.py:130: in app\n    await wrap_app_handling_exceptions(app, request)(scope, receive, send)\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\starlette\\_exception_handler.py:53: in wrapped_app\n    raise exc\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\starlette\\_exception_handler.py:42: in wrapped_app\n    await app(scope, receive, sender)\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\fastapi\\routing.py:116: in app\n    response = await f(request)\n               ^^^^^^^^^^^^^^^^\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\fastapi\\routing.py:453: in app\n    solved_result = await solve_dependencies(\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\fastapi\\dependencies\\utils.py:677: in solve_dependencies\n    solved = await run_in_threadpool(call, **solved_result.values)\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\starlette\\concurrency.py:32: in run_in_threadpool\n    return await anyio.to_thread.run_sync(func)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nc:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\anyio\\to_thread.py:63: in run_sync\n    return await get_async_backend().run_sync_in_worker_thread(\nc:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\anyio\\_backends\\_asyncio.py:2502: in run_sync_in_worker_thread\n    return await future\n           ^^^^^^^^^^^^\nc:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\anyio\\_backends\\_asyncio.py:986: in run\n    result = context.run(func, *args)\n             ^^^^^^^^^^^^^^^^^^^^^^^^\n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n\n    def get_engine() -&amp;gt; InferenceEngine:\n        &amp;quot;&amp;quot;&amp;quot;\u4f9d\u8d56\u6ce8\u5165\uff1a\u63d0\u4f9b\u5168\u5c40 InferenceEngine \u5b9e\u4f8b\u3002\n    \n        Returns:\n            InferenceEngine \u5b9e\u4f8b\uff08\u5728 lifespan \u4e2d\u521d\u59cb\u5316\uff09\u3002\n    \n        Raises:\n            RuntimeError: \u5728 lifespan \u521d\u59cb\u5316\u524d\u8c03\u7528\u65f6\uff08\u6b63\u5e38\u4e0d\u5e94\u53d1\u751f\uff09\u3002\n        &amp;quot;&amp;quot;&amp;quot;\n        if _inference_engine is None:\n&amp;gt;           raise RuntimeError(&amp;quot;InferenceEngine not initialized&amp;quot;)\nE           RuntimeError: InferenceEngine not initialized\n\nsrc\\app.py:186: RuntimeError\n\n----------------------------- Captured stdout call -----------------------------\n2026-03-17 16:10:14 [error    ] unhandled_exception            [src.app] exc_msg=&amp;#x27;InferenceEngine not initialized&amp;#x27; exc_type=RuntimeError\n&#34;}], &#34;tests/integration/test_api_endpoints.py::test_classify_text_over_max_length_returns_422&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Failed&#34;, &#34;testId&#34;: &#34;tests/integration/test_api_endpoints.py::test_classify_text_over_max_length_returns_422&#34;, &#34;duration&#34;: &#34;5 ms&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Failed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/integration/test_api_endpoints.py::test_classify_text_over_max_length_returns_422&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;5 ms&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;app_client = &amp;lt;httpx.AsyncClient object at 0x000001D87C4CA4D0&amp;gt;\n\n    @pytest.mark.asyncio\n    async def test_classify_text_over_max_length_returns_422(app_client: AsyncClient) -&amp;gt; None:\n        &amp;quot;&amp;quot;&amp;quot;\u8fb9\u754c\uff1a10001 \u5b57\u7b26\u7684\u6587\u672c\u5e94\u88ab Field(max_length=10000) \u62e6\u622a\uff0c\u8fd4\u56de 422\u3002&amp;quot;&amp;quot;&amp;quot;\n        text = &amp;quot;a&amp;quot; * 10001\n&amp;gt;       response = await app_client.post(&amp;quot;/api/v1/classify&amp;quot;, json={&amp;quot;text&amp;quot;: text})\n                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n\ntests\\integration\\test_api_endpoints.py:92: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\httpx\\_client.py:1859: in post\n    return await self.request(\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\httpx\\_client.py:1540: in request\n    return await self.send(request, auth=auth, follow_redirects=follow_redirects)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\httpx\\_client.py:1629: in send\n    response = await self._send_handling_auth(\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\httpx\\_client.py:1657: in _send_handling_auth\n    response = await self._send_handling_redirects(\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\httpx\\_client.py:1694: in _send_handling_redirects\n    response = await self._send_single_request(request)\n               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\httpx\\_client.py:1730: in _send_single_request\n    response = await transport.handle_async_request(request)\n               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\httpx\\_transports\\asgi.py:170: in handle_async_request\n    await self.app(scope, receive, send)\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\fastapi\\applications.py:1160: in __call__\n    await super().__call__(scope, receive, send)\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\starlette\\applications.py:107: in __call__\n    await self.middleware_stack(scope, receive, send)\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\starlette\\middleware\\errors.py:186: in __call__\n    raise exc\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\starlette\\middleware\\errors.py:164: in __call__\n    await self.app(scope, receive, _send)\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\starlette\\middleware\\base.py:191: in __call__\n    with recv_stream, send_stream, collapse_excgroups():\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\contextlib.py:158: in __exit__\n    self.gen.throw(typ, value, traceback)\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\starlette\\_utils.py:87: in collapse_excgroups\n    raise exc\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\starlette\\middleware\\base.py:193: in __call__\n    response = await self.dispatch_func(request, call_next)\n               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nsrc\\middleware\\rate_limiter.py:218: in dispatch\n    response = await call_next(request)\n               ^^^^^^^^^^^^^^^^^^^^^^^^\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\starlette\\middleware\\base.py:168: in call_next\n    raise app_exc from app_exc.__cause__ or app_exc.__context__\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\starlette\\middleware\\base.py:144: in coro\n    await self.app(scope, receive_or_disconnect, send_no_error)\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\starlette\\middleware\\exceptions.py:63: in __call__\n    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\starlette\\_exception_handler.py:53: in wrapped_app\n    raise exc\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\starlette\\_exception_handler.py:42: in wrapped_app\n    await app(scope, receive, sender)\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\fastapi\\middleware\\asyncexitstack.py:18: in __call__\n    await self.app(scope, receive, send)\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\starlette\\routing.py:716: in __call__\n    await self.middleware_stack(scope, receive, send)\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\starlette\\routing.py:736: in app\n    await route.handle(scope, receive, send)\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\starlette\\routing.py:290: in handle\n    await self.app(scope, receive, send)\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\fastapi\\routing.py:130: in app\n    await wrap_app_handling_exceptions(app, request)(scope, receive, send)\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\starlette\\_exception_handler.py:53: in wrapped_app\n    raise exc\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\starlette\\_exception_handler.py:42: in wrapped_app\n    await app(scope, receive, sender)\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\fastapi\\routing.py:116: in app\n    response = await f(request)\n               ^^^^^^^^^^^^^^^^\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\fastapi\\routing.py:453: in app\n    solved_result = await solve_dependencies(\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\fastapi\\dependencies\\utils.py:677: in solve_dependencies\n    solved = await run_in_threadpool(call, **solved_result.values)\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\starlette\\concurrency.py:32: in run_in_threadpool\n    return await anyio.to_thread.run_sync(func)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nc:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\anyio\\to_thread.py:63: in run_sync\n    return await get_async_backend().run_sync_in_worker_thread(\nc:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\anyio\\_backends\\_asyncio.py:2502: in run_sync_in_worker_thread\n    return await future\n           ^^^^^^^^^^^^\nc:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\anyio\\_backends\\_asyncio.py:986: in run\n    result = context.run(func, *args)\n             ^^^^^^^^^^^^^^^^^^^^^^^^\n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n\n    def get_engine() -&amp;gt; InferenceEngine:\n        &amp;quot;&amp;quot;&amp;quot;\u4f9d\u8d56\u6ce8\u5165\uff1a\u63d0\u4f9b\u5168\u5c40 InferenceEngine \u5b9e\u4f8b\u3002\n    \n        Returns:\n            InferenceEngine \u5b9e\u4f8b\uff08\u5728 lifespan \u4e2d\u521d\u59cb\u5316\uff09\u3002\n    \n        Raises:\n            RuntimeError: \u5728 lifespan \u521d\u59cb\u5316\u524d\u8c03\u7528\u65f6\uff08\u6b63\u5e38\u4e0d\u5e94\u53d1\u751f\uff09\u3002\n        &amp;quot;&amp;quot;&amp;quot;\n        if _inference_engine is None:\n&amp;gt;           raise RuntimeError(&amp;quot;InferenceEngine not initialized&amp;quot;)\nE           RuntimeError: InferenceEngine not initialized\n\nsrc\\app.py:186: RuntimeError\n\n----------------------------- Captured stdout call -----------------------------\n2026-03-17 16:10:15 [error    ] unhandled_exception            [src.app] exc_msg=&amp;#x27;InferenceEngine not initialized&amp;#x27; exc_type=RuntimeError\n&#34;}], &#34;tests/integration/test_api_endpoints.py::test_generate_valid_request_returns_200&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Failed&#34;, &#34;testId&#34;: &#34;tests/integration/test_api_endpoints.py::test_generate_valid_request_returns_200&#34;, &#34;duration&#34;: &#34;5 ms&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Failed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/integration/test_api_endpoints.py::test_generate_valid_request_returns_200&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;5 ms&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;app_client = &amp;lt;httpx.AsyncClient object at 0x000001D87C4CA4D0&amp;gt;\n\n    @pytest.mark.asyncio\n    async def test_generate_valid_request_returns_200(app_client: AsyncClient) -&amp;gt; None:\n        &amp;quot;&amp;quot;&amp;quot;\u6b63\u5411\uff1a\u6b63\u5e38\u6587\u672c\u751f\u6210\u8bf7\u6c42\u5e94\u8fd4\u56de 200 \u53ca\u5b8c\u6574 JSON \u7ed3\u6784\u3002&amp;quot;&amp;quot;&amp;quot;\n&amp;gt;       response = await app_client.post(\n            &amp;quot;/api/v1/generate&amp;quot;,\n            json={&amp;quot;prompt&amp;quot;: &amp;quot;\u4eca\u5929\u5929\u6c14&amp;quot;, &amp;quot;max_length&amp;quot;: 50},\n        )\n\ntests\\integration\\test_api_endpoints.py:102: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\httpx\\_client.py:1859: in post\n    return await self.request(\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\httpx\\_client.py:1540: in request\n    return await self.send(request, auth=auth, follow_redirects=follow_redirects)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\httpx\\_client.py:1629: in send\n    response = await self._send_handling_auth(\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\httpx\\_client.py:1657: in _send_handling_auth\n    response = await self._send_handling_redirects(\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\httpx\\_client.py:1694: in _send_handling_redirects\n    response = await self._send_single_request(request)\n               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\httpx\\_client.py:1730: in _send_single_request\n    response = await transport.handle_async_request(request)\n               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\httpx\\_transports\\asgi.py:170: in handle_async_request\n    await self.app(scope, receive, send)\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\fastapi\\applications.py:1160: in __call__\n    await super().__call__(scope, receive, send)\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\starlette\\applications.py:107: in __call__\n    await self.middleware_stack(scope, receive, send)\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\starlette\\middleware\\errors.py:186: in __call__\n    raise exc\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\starlette\\middleware\\errors.py:164: in __call__\n    await self.app(scope, receive, _send)\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\starlette\\middleware\\base.py:191: in __call__\n    with recv_stream, send_stream, collapse_excgroups():\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\contextlib.py:158: in __exit__\n    self.gen.throw(typ, value, traceback)\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\starlette\\_utils.py:87: in collapse_excgroups\n    raise exc\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\starlette\\middleware\\base.py:193: in __call__\n    response = await self.dispatch_func(request, call_next)\n               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nsrc\\middleware\\rate_limiter.py:218: in dispatch\n    response = await call_next(request)\n               ^^^^^^^^^^^^^^^^^^^^^^^^\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\starlette\\middleware\\base.py:168: in call_next\n    raise app_exc from app_exc.__cause__ or app_exc.__context__\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\starlette\\middleware\\base.py:144: in coro\n    await self.app(scope, receive_or_disconnect, send_no_error)\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\starlette\\middleware\\exceptions.py:63: in __call__\n    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\starlette\\_exception_handler.py:53: in wrapped_app\n    raise exc\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\starlette\\_exception_handler.py:42: in wrapped_app\n    await app(scope, receive, sender)\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\fastapi\\middleware\\asyncexitstack.py:18: in __call__\n    await self.app(scope, receive, send)\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\starlette\\routing.py:716: in __call__\n    await self.middleware_stack(scope, receive, send)\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\starlette\\routing.py:736: in app\n    await route.handle(scope, receive, send)\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\starlette\\routing.py:290: in handle\n    await self.app(scope, receive, send)\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\fastapi\\routing.py:130: in app\n    await wrap_app_handling_exceptions(app, request)(scope, receive, send)\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\starlette\\_exception_handler.py:53: in wrapped_app\n    raise exc\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\starlette\\_exception_handler.py:42: in wrapped_app\n    await app(scope, receive, sender)\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\fastapi\\routing.py:116: in app\n    response = await f(request)\n               ^^^^^^^^^^^^^^^^\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\fastapi\\routing.py:453: in app\n    solved_result = await solve_dependencies(\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\fastapi\\dependencies\\utils.py:677: in solve_dependencies\n    solved = await run_in_threadpool(call, **solved_result.values)\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\starlette\\concurrency.py:32: in run_in_threadpool\n    return await anyio.to_thread.run_sync(func)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nc:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\anyio\\to_thread.py:63: in run_sync\n    return await get_async_backend().run_sync_in_worker_thread(\nc:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\anyio\\_backends\\_asyncio.py:2502: in run_sync_in_worker_thread\n    return await future\n           ^^^^^^^^^^^^\nc:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\anyio\\_backends\\_asyncio.py:986: in run\n    result = context.run(func, *args)\n             ^^^^^^^^^^^^^^^^^^^^^^^^\n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n\n    def get_engine() -&amp;gt; InferenceEngine:\n        &amp;quot;&amp;quot;&amp;quot;\u4f9d\u8d56\u6ce8\u5165\uff1a\u63d0\u4f9b\u5168\u5c40 InferenceEngine \u5b9e\u4f8b\u3002\n    \n        Returns:\n            InferenceEngine \u5b9e\u4f8b\uff08\u5728 lifespan \u4e2d\u521d\u59cb\u5316\uff09\u3002\n    \n        Raises:\n            RuntimeError: \u5728 lifespan \u521d\u59cb\u5316\u524d\u8c03\u7528\u65f6\uff08\u6b63\u5e38\u4e0d\u5e94\u53d1\u751f\uff09\u3002\n        &amp;quot;&amp;quot;&amp;quot;\n        if _inference_engine is None:\n&amp;gt;           raise RuntimeError(&amp;quot;InferenceEngine not initialized&amp;quot;)\nE           RuntimeError: InferenceEngine not initialized\n\nsrc\\app.py:186: RuntimeError\n\n----------------------------- Captured stdout call -----------------------------\n2026-03-17 16:10:15 [error    ] unhandled_exception            [src.app] exc_msg=&amp;#x27;InferenceEngine not initialized&amp;#x27; exc_type=RuntimeError\n&#34;}], &#34;tests/integration/test_api_endpoints.py::test_generate_max_length_zero_returns_422&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Failed&#34;, &#34;testId&#34;: &#34;tests/integration/test_api_endpoints.py::test_generate_max_length_zero_returns_422&#34;, &#34;duration&#34;: &#34;5 ms&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Failed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/integration/test_api_endpoints.py::test_generate_max_length_zero_returns_422&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;5 ms&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;app_client = &amp;lt;httpx.AsyncClient object at 0x000001D87C4CA4D0&amp;gt;\n\n    @pytest.mark.asyncio\n    async def test_generate_max_length_zero_returns_422(app_client: AsyncClient) -&amp;gt; None:\n        &amp;quot;&amp;quot;&amp;quot;\u8fb9\u754c\uff1amax_length=0 \u5e94\u88ab Field(ge=1) \u62e6\u622a\uff0c\u8fd4\u56de 422\u3002&amp;quot;&amp;quot;&amp;quot;\n&amp;gt;       response = await app_client.post(\n            &amp;quot;/api/v1/generate&amp;quot;,\n            json={&amp;quot;prompt&amp;quot;: &amp;quot;\u6d4b\u8bd5&amp;quot;, &amp;quot;max_length&amp;quot;: 0},\n        )\n\ntests\\integration\\test_api_endpoints.py:117: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\httpx\\_client.py:1859: in post\n    return await self.request(\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\httpx\\_client.py:1540: in request\n    return await self.send(request, auth=auth, follow_redirects=follow_redirects)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\httpx\\_client.py:1629: in send\n    response = await self._send_handling_auth(\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\httpx\\_client.py:1657: in _send_handling_auth\n    response = await self._send_handling_redirects(\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\httpx\\_client.py:1694: in _send_handling_redirects\n    response = await self._send_single_request(request)\n               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\httpx\\_client.py:1730: in _send_single_request\n    response = await transport.handle_async_request(request)\n               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\httpx\\_transports\\asgi.py:170: in handle_async_request\n    await self.app(scope, receive, send)\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\fastapi\\applications.py:1160: in __call__\n    await super().__call__(scope, receive, send)\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\starlette\\applications.py:107: in __call__\n    await self.middleware_stack(scope, receive, send)\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\starlette\\middleware\\errors.py:186: in __call__\n    raise exc\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\starlette\\middleware\\errors.py:164: in __call__\n    await self.app(scope, receive, _send)\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\starlette\\middleware\\base.py:191: in __call__\n    with recv_stream, send_stream, collapse_excgroups():\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\contextlib.py:158: in __exit__\n    self.gen.throw(typ, value, traceback)\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\starlette\\_utils.py:87: in collapse_excgroups\n    raise exc\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\starlette\\middleware\\base.py:193: in __call__\n    response = await self.dispatch_func(request, call_next)\n               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nsrc\\middleware\\rate_limiter.py:218: in dispatch\n    response = await call_next(request)\n               ^^^^^^^^^^^^^^^^^^^^^^^^\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\starlette\\middleware\\base.py:168: in call_next\n    raise app_exc from app_exc.__cause__ or app_exc.__context__\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\starlette\\middleware\\base.py:144: in coro\n    await self.app(scope, receive_or_disconnect, send_no_error)\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\starlette\\middleware\\exceptions.py:63: in __call__\n    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\starlette\\_exception_handler.py:53: in wrapped_app\n    raise exc\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\starlette\\_exception_handler.py:42: in wrapped_app\n    await app(scope, receive, sender)\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\fastapi\\middleware\\asyncexitstack.py:18: in __call__\n    await self.app(scope, receive, send)\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\starlette\\routing.py:716: in __call__\n    await self.middleware_stack(scope, receive, send)\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\starlette\\routing.py:736: in app\n    await route.handle(scope, receive, send)\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\starlette\\routing.py:290: in handle\n    await self.app(scope, receive, send)\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\fastapi\\routing.py:130: in app\n    await wrap_app_handling_exceptions(app, request)(scope, receive, send)\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\starlette\\_exception_handler.py:53: in wrapped_app\n    raise exc\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\starlette\\_exception_handler.py:42: in wrapped_app\n    await app(scope, receive, sender)\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\fastapi\\routing.py:116: in app\n    response = await f(request)\n               ^^^^^^^^^^^^^^^^\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\fastapi\\routing.py:453: in app\n    solved_result = await solve_dependencies(\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\fastapi\\dependencies\\utils.py:677: in solve_dependencies\n    solved = await run_in_threadpool(call, **solved_result.values)\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\starlette\\concurrency.py:32: in run_in_threadpool\n    return await anyio.to_thread.run_sync(func)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nc:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\anyio\\to_thread.py:63: in run_sync\n    return await get_async_backend().run_sync_in_worker_thread(\nc:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\anyio\\_backends\\_asyncio.py:2502: in run_sync_in_worker_thread\n    return await future\n           ^^^^^^^^^^^^\nc:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\anyio\\_backends\\_asyncio.py:986: in run\n    result = context.run(func, *args)\n             ^^^^^^^^^^^^^^^^^^^^^^^^\n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n\n    def get_engine() -&amp;gt; InferenceEngine:\n        &amp;quot;&amp;quot;&amp;quot;\u4f9d\u8d56\u6ce8\u5165\uff1a\u63d0\u4f9b\u5168\u5c40 InferenceEngine \u5b9e\u4f8b\u3002\n    \n        Returns:\n            InferenceEngine \u5b9e\u4f8b\uff08\u5728 lifespan \u4e2d\u521d\u59cb\u5316\uff09\u3002\n    \n        Raises:\n            RuntimeError: \u5728 lifespan \u521d\u59cb\u5316\u524d\u8c03\u7528\u65f6\uff08\u6b63\u5e38\u4e0d\u5e94\u53d1\u751f\uff09\u3002\n        &amp;quot;&amp;quot;&amp;quot;\n        if _inference_engine is None:\n&amp;gt;           raise RuntimeError(&amp;quot;InferenceEngine not initialized&amp;quot;)\nE           RuntimeError: InferenceEngine not initialized\n\nsrc\\app.py:186: RuntimeError\n\n----------------------------- Captured stdout call -----------------------------\n2026-03-17 16:10:15 [error    ] unhandled_exception            [src.app] exc_msg=&amp;#x27;InferenceEngine not initialized&amp;#x27; exc_type=RuntimeError\n&#34;}], &#34;tests/integration/test_api_endpoints.py::test_generate_missing_prompt_returns_422&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Failed&#34;, &#34;testId&#34;: &#34;tests/integration/test_api_endpoints.py::test_generate_missing_prompt_returns_422&#34;, &#34;duration&#34;: &#34;5 ms&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Failed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/integration/test_api_endpoints.py::test_generate_missing_prompt_returns_422&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;5 ms&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;app_client = &amp;lt;httpx.AsyncClient object at 0x000001D87C4CA4D0&amp;gt;\n\n    @pytest.mark.asyncio\n    async def test_generate_missing_prompt_returns_422(app_client: AsyncClient) -&amp;gt; None:\n        &amp;quot;&amp;quot;&amp;quot;\u53cd\u5411\uff1a\u7f3a\u5c11 prompt \u5b57\u6bb5\u5e94\u8fd4\u56de 422\u3002&amp;quot;&amp;quot;&amp;quot;\n&amp;gt;       response = await app_client.post(\n            &amp;quot;/api/v1/generate&amp;quot;,\n            json={&amp;quot;max_length&amp;quot;: 50},\n        )\n\ntests\\integration\\test_api_endpoints.py:127: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\httpx\\_client.py:1859: in post\n    return await self.request(\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\httpx\\_client.py:1540: in request\n    return await self.send(request, auth=auth, follow_redirects=follow_redirects)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\httpx\\_client.py:1629: in send\n    response = await self._send_handling_auth(\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\httpx\\_client.py:1657: in _send_handling_auth\n    response = await self._send_handling_redirects(\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\httpx\\_client.py:1694: in _send_handling_redirects\n    response = await self._send_single_request(request)\n               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\httpx\\_client.py:1730: in _send_single_request\n    response = await transport.handle_async_request(request)\n               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\httpx\\_transports\\asgi.py:170: in handle_async_request\n    await self.app(scope, receive, send)\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\fastapi\\applications.py:1160: in __call__\n    await super().__call__(scope, receive, send)\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\starlette\\applications.py:107: in __call__\n    await self.middleware_stack(scope, receive, send)\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\starlette\\middleware\\errors.py:186: in __call__\n    raise exc\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\starlette\\middleware\\errors.py:164: in __call__\n    await self.app(scope, receive, _send)\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\starlette\\middleware\\base.py:191: in __call__\n    with recv_stream, send_stream, collapse_excgroups():\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\contextlib.py:158: in __exit__\n    self.gen.throw(typ, value, traceback)\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\starlette\\_utils.py:87: in collapse_excgroups\n    raise exc\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\starlette\\middleware\\base.py:193: in __call__\n    response = await self.dispatch_func(request, call_next)\n               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nsrc\\middleware\\rate_limiter.py:218: in dispatch\n    response = await call_next(request)\n               ^^^^^^^^^^^^^^^^^^^^^^^^\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\starlette\\middleware\\base.py:168: in call_next\n    raise app_exc from app_exc.__cause__ or app_exc.__context__\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\starlette\\middleware\\base.py:144: in coro\n    await self.app(scope, receive_or_disconnect, send_no_error)\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\starlette\\middleware\\exceptions.py:63: in __call__\n    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\starlette\\_exception_handler.py:53: in wrapped_app\n    raise exc\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\starlette\\_exception_handler.py:42: in wrapped_app\n    await app(scope, receive, sender)\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\fastapi\\middleware\\asyncexitstack.py:18: in __call__\n    await self.app(scope, receive, send)\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\starlette\\routing.py:716: in __call__\n    await self.middleware_stack(scope, receive, send)\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\starlette\\routing.py:736: in app\n    await route.handle(scope, receive, send)\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\starlette\\routing.py:290: in handle\n    await self.app(scope, receive, send)\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\fastapi\\routing.py:130: in app\n    await wrap_app_handling_exceptions(app, request)(scope, receive, send)\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\starlette\\_exception_handler.py:53: in wrapped_app\n    raise exc\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\starlette\\_exception_handler.py:42: in wrapped_app\n    await app(scope, receive, sender)\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\fastapi\\routing.py:116: in app\n    response = await f(request)\n               ^^^^^^^^^^^^^^^^\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\fastapi\\routing.py:453: in app\n    solved_result = await solve_dependencies(\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\fastapi\\dependencies\\utils.py:677: in solve_dependencies\n    solved = await run_in_threadpool(call, **solved_result.values)\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\starlette\\concurrency.py:32: in run_in_threadpool\n    return await anyio.to_thread.run_sync(func)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nc:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\anyio\\to_thread.py:63: in run_sync\n    return await get_async_backend().run_sync_in_worker_thread(\nc:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\anyio\\_backends\\_asyncio.py:2502: in run_sync_in_worker_thread\n    return await future\n           ^^^^^^^^^^^^\nc:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\anyio\\_backends\\_asyncio.py:986: in run\n    result = context.run(func, *args)\n             ^^^^^^^^^^^^^^^^^^^^^^^^\n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n\n    def get_engine() -&amp;gt; InferenceEngine:\n        &amp;quot;&amp;quot;&amp;quot;\u4f9d\u8d56\u6ce8\u5165\uff1a\u63d0\u4f9b\u5168\u5c40 InferenceEngine \u5b9e\u4f8b\u3002\n    \n        Returns:\n            InferenceEngine \u5b9e\u4f8b\uff08\u5728 lifespan \u4e2d\u521d\u59cb\u5316\uff09\u3002\n    \n        Raises:\n            RuntimeError: \u5728 lifespan \u521d\u59cb\u5316\u524d\u8c03\u7528\u65f6\uff08\u6b63\u5e38\u4e0d\u5e94\u53d1\u751f\uff09\u3002\n        &amp;quot;&amp;quot;&amp;quot;\n        if _inference_engine is None:\n&amp;gt;           raise RuntimeError(&amp;quot;InferenceEngine not initialized&amp;quot;)\nE           RuntimeError: InferenceEngine not initialized\n\nsrc\\app.py:186: RuntimeError\n\n----------------------------- Captured stdout call -----------------------------\n2026-03-17 16:10:15 [error    ] unhandled_exception            [src.app] exc_msg=&amp;#x27;InferenceEngine not initialized&amp;#x27; exc_type=RuntimeError\n&#34;}], &#34;tests/integration/test_api_endpoints.py::test_batch_classify_valid_request_returns_200&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Failed&#34;, &#34;testId&#34;: &#34;tests/integration/test_api_endpoints.py::test_batch_classify_valid_request_returns_200&#34;, &#34;duration&#34;: &#34;6 ms&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Failed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/integration/test_api_endpoints.py::test_batch_classify_valid_request_returns_200&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;6 ms&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;app_client = &amp;lt;httpx.AsyncClient object at 0x000001D87C4CA4D0&amp;gt;\n\n    @pytest.mark.asyncio\n    async def test_batch_classify_valid_request_returns_200(app_client: AsyncClient) -&amp;gt; None:\n        &amp;quot;&amp;quot;&amp;quot;\u6b63\u5411\uff1a\u6279\u91cf\u5206\u7c7b\u6b63\u5e38\u8bf7\u6c42\u5e94\u8fd4\u56de 200\uff0cresults \u6570\u91cf\u4e0e\u8f93\u5165\u4e00\u81f4\u3002&amp;quot;&amp;quot;&amp;quot;\n        texts = [&amp;quot;\u4e2d\u56fd\u961f\u83b7\u80dc&amp;quot;, &amp;quot;\u4eba\u5de5\u667a\u80fd\u7a81\u7834&amp;quot;, &amp;quot;\u7968\u623f\u5927\u5356&amp;quot;]\n&amp;gt;       response = await app_client.post(\n            &amp;quot;/api/v1/batch/classify&amp;quot;,\n            json={&amp;quot;texts&amp;quot;: texts},\n        )\n\ntests\\integration\\test_api_endpoints.py:141: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\httpx\\_client.py:1859: in post\n    return await self.request(\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\httpx\\_client.py:1540: in request\n    return await self.send(request, auth=auth, follow_redirects=follow_redirects)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\httpx\\_client.py:1629: in send\n    response = await self._send_handling_auth(\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\httpx\\_client.py:1657: in _send_handling_auth\n    response = await self._send_handling_redirects(\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\httpx\\_client.py:1694: in _send_handling_redirects\n    response = await self._send_single_request(request)\n               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\httpx\\_client.py:1730: in _send_single_request\n    response = await transport.handle_async_request(request)\n               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\httpx\\_transports\\asgi.py:170: in handle_async_request\n    await self.app(scope, receive, send)\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\fastapi\\applications.py:1160: in __call__\n    await super().__call__(scope, receive, send)\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\starlette\\applications.py:107: in __call__\n    await self.middleware_stack(scope, receive, send)\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\starlette\\middleware\\errors.py:186: in __call__\n    raise exc\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\starlette\\middleware\\errors.py:164: in __call__\n    await self.app(scope, receive, _send)\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\starlette\\middleware\\base.py:191: in __call__\n    with recv_stream, send_stream, collapse_excgroups():\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\contextlib.py:158: in __exit__\n    self.gen.throw(typ, value, traceback)\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\starlette\\_utils.py:87: in collapse_excgroups\n    raise exc\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\starlette\\middleware\\base.py:193: in __call__\n    response = await self.dispatch_func(request, call_next)\n               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nsrc\\middleware\\rate_limiter.py:218: in dispatch\n    response = await call_next(request)\n               ^^^^^^^^^^^^^^^^^^^^^^^^\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\starlette\\middleware\\base.py:168: in call_next\n    raise app_exc from app_exc.__cause__ or app_exc.__context__\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\starlette\\middleware\\base.py:144: in coro\n    await self.app(scope, receive_or_disconnect, send_no_error)\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\starlette\\middleware\\exceptions.py:63: in __call__\n    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\starlette\\_exception_handler.py:53: in wrapped_app\n    raise exc\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\starlette\\_exception_handler.py:42: in wrapped_app\n    await app(scope, receive, sender)\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\fastapi\\middleware\\asyncexitstack.py:18: in __call__\n    await self.app(scope, receive, send)\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\starlette\\routing.py:716: in __call__\n    await self.middleware_stack(scope, receive, send)\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\starlette\\routing.py:736: in app\n    await route.handle(scope, receive, send)\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\starlette\\routing.py:290: in handle\n    await self.app(scope, receive, send)\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\fastapi\\routing.py:130: in app\n    await wrap_app_handling_exceptions(app, request)(scope, receive, send)\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\starlette\\_exception_handler.py:53: in wrapped_app\n    raise exc\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\starlette\\_exception_handler.py:42: in wrapped_app\n    await app(scope, receive, sender)\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\fastapi\\routing.py:116: in app\n    response = await f(request)\n               ^^^^^^^^^^^^^^^^\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\fastapi\\routing.py:453: in app\n    solved_result = await solve_dependencies(\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\fastapi\\dependencies\\utils.py:677: in solve_dependencies\n    solved = await run_in_threadpool(call, **solved_result.values)\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\starlette\\concurrency.py:32: in run_in_threadpool\n    return await anyio.to_thread.run_sync(func)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nc:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\anyio\\to_thread.py:63: in run_sync\n    return await get_async_backend().run_sync_in_worker_thread(\nc:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\anyio\\_backends\\_asyncio.py:2502: in run_sync_in_worker_thread\n    return await future\n           ^^^^^^^^^^^^\nc:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\anyio\\_backends\\_asyncio.py:986: in run\n    result = context.run(func, *args)\n             ^^^^^^^^^^^^^^^^^^^^^^^^\n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n\n    def get_engine() -&amp;gt; InferenceEngine:\n        &amp;quot;&amp;quot;&amp;quot;\u4f9d\u8d56\u6ce8\u5165\uff1a\u63d0\u4f9b\u5168\u5c40 InferenceEngine \u5b9e\u4f8b\u3002\n    \n        Returns:\n            InferenceEngine \u5b9e\u4f8b\uff08\u5728 lifespan \u4e2d\u521d\u59cb\u5316\uff09\u3002\n    \n        Raises:\n            RuntimeError: \u5728 lifespan \u521d\u59cb\u5316\u524d\u8c03\u7528\u65f6\uff08\u6b63\u5e38\u4e0d\u5e94\u53d1\u751f\uff09\u3002\n        &amp;quot;&amp;quot;&amp;quot;\n        if _inference_engine is None:\n&amp;gt;           raise RuntimeError(&amp;quot;InferenceEngine not initialized&amp;quot;)\nE           RuntimeError: InferenceEngine not initialized\n\nsrc\\app.py:186: RuntimeError\n\n----------------------------- Captured stdout call -----------------------------\n2026-03-17 16:10:16 [error    ] unhandled_exception            [src.app] exc_msg=&amp;#x27;InferenceEngine not initialized&amp;#x27; exc_type=RuntimeError\n&#34;}], &#34;tests/integration/test_api_endpoints.py::test_batch_classify_empty_list_returns_422&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Failed&#34;, &#34;testId&#34;: &#34;tests/integration/test_api_endpoints.py::test_batch_classify_empty_list_returns_422&#34;, &#34;duration&#34;: &#34;4 ms&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Failed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/integration/test_api_endpoints.py::test_batch_classify_empty_list_returns_422&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;4 ms&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;app_client = &amp;lt;httpx.AsyncClient object at 0x000001D87C4CA4D0&amp;gt;\n\n    @pytest.mark.asyncio\n    async def test_batch_classify_empty_list_returns_422(app_client: AsyncClient) -&amp;gt; None:\n        &amp;quot;&amp;quot;&amp;quot;\u53cd\u5411\uff1a\u7a7a\u5217\u8868\u5e94\u88ab Field(min_length=1) \u62e6\u622a\uff0c\u8fd4\u56de 422\u3002&amp;quot;&amp;quot;&amp;quot;\n&amp;gt;       response = await app_client.post(\n            &amp;quot;/api/v1/batch/classify&amp;quot;,\n            json={&amp;quot;texts&amp;quot;: []},\n        )\n\ntests\\integration\\test_api_endpoints.py:154: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\httpx\\_client.py:1859: in post\n    return await self.request(\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\httpx\\_client.py:1540: in request\n    return await self.send(request, auth=auth, follow_redirects=follow_redirects)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\httpx\\_client.py:1629: in send\n    response = await self._send_handling_auth(\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\httpx\\_client.py:1657: in _send_handling_auth\n    response = await self._send_handling_redirects(\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\httpx\\_client.py:1694: in _send_handling_redirects\n    response = await self._send_single_request(request)\n               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\httpx\\_client.py:1730: in _send_single_request\n    response = await transport.handle_async_request(request)\n               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\httpx\\_transports\\asgi.py:170: in handle_async_request\n    await self.app(scope, receive, send)\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\fastapi\\applications.py:1160: in __call__\n    await super().__call__(scope, receive, send)\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\starlette\\applications.py:107: in __call__\n    await self.middleware_stack(scope, receive, send)\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\starlette\\middleware\\errors.py:186: in __call__\n    raise exc\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\starlette\\middleware\\errors.py:164: in __call__\n    await self.app(scope, receive, _send)\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\starlette\\middleware\\base.py:191: in __call__\n    with recv_stream, send_stream, collapse_excgroups():\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\contextlib.py:158: in __exit__\n    self.gen.throw(typ, value, traceback)\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\starlette\\_utils.py:87: in collapse_excgroups\n    raise exc\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\starlette\\middleware\\base.py:193: in __call__\n    response = await self.dispatch_func(request, call_next)\n               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nsrc\\middleware\\rate_limiter.py:218: in dispatch\n    response = await call_next(request)\n               ^^^^^^^^^^^^^^^^^^^^^^^^\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\starlette\\middleware\\base.py:168: in call_next\n    raise app_exc from app_exc.__cause__ or app_exc.__context__\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\starlette\\middleware\\base.py:144: in coro\n    await self.app(scope, receive_or_disconnect, send_no_error)\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\starlette\\middleware\\exceptions.py:63: in __call__\n    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\starlette\\_exception_handler.py:53: in wrapped_app\n    raise exc\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\starlette\\_exception_handler.py:42: in wrapped_app\n    await app(scope, receive, sender)\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\fastapi\\middleware\\asyncexitstack.py:18: in __call__\n    await self.app(scope, receive, send)\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\starlette\\routing.py:716: in __call__\n    await self.middleware_stack(scope, receive, send)\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\starlette\\routing.py:736: in app\n    await route.handle(scope, receive, send)\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\starlette\\routing.py:290: in handle\n    await self.app(scope, receive, send)\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\fastapi\\routing.py:130: in app\n    await wrap_app_handling_exceptions(app, request)(scope, receive, send)\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\starlette\\_exception_handler.py:53: in wrapped_app\n    raise exc\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\starlette\\_exception_handler.py:42: in wrapped_app\n    await app(scope, receive, sender)\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\fastapi\\routing.py:116: in app\n    response = await f(request)\n               ^^^^^^^^^^^^^^^^\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\fastapi\\routing.py:453: in app\n    solved_result = await solve_dependencies(\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\fastapi\\dependencies\\utils.py:677: in solve_dependencies\n    solved = await run_in_threadpool(call, **solved_result.values)\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\starlette\\concurrency.py:32: in run_in_threadpool\n    return await anyio.to_thread.run_sync(func)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nc:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\anyio\\to_thread.py:63: in run_sync\n    return await get_async_backend().run_sync_in_worker_thread(\nc:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\anyio\\_backends\\_asyncio.py:2502: in run_sync_in_worker_thread\n    return await future\n           ^^^^^^^^^^^^\nc:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\anyio\\_backends\\_asyncio.py:986: in run\n    result = context.run(func, *args)\n             ^^^^^^^^^^^^^^^^^^^^^^^^\n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n\n    def get_engine() -&amp;gt; InferenceEngine:\n        &amp;quot;&amp;quot;&amp;quot;\u4f9d\u8d56\u6ce8\u5165\uff1a\u63d0\u4f9b\u5168\u5c40 InferenceEngine \u5b9e\u4f8b\u3002\n    \n        Returns:\n            InferenceEngine \u5b9e\u4f8b\uff08\u5728 lifespan \u4e2d\u521d\u59cb\u5316\uff09\u3002\n    \n        Raises:\n            RuntimeError: \u5728 lifespan \u521d\u59cb\u5316\u524d\u8c03\u7528\u65f6\uff08\u6b63\u5e38\u4e0d\u5e94\u53d1\u751f\uff09\u3002\n        &amp;quot;&amp;quot;&amp;quot;\n        if _inference_engine is None:\n&amp;gt;           raise RuntimeError(&amp;quot;InferenceEngine not initialized&amp;quot;)\nE           RuntimeError: InferenceEngine not initialized\n\nsrc\\app.py:186: RuntimeError\n\n----------------------------- Captured stdout call -----------------------------\n2026-03-17 16:10:16 [error    ] unhandled_exception            [src.app] exc_msg=&amp;#x27;InferenceEngine not initialized&amp;#x27; exc_type=RuntimeError\n&#34;}], &#34;tests/integration/test_api_endpoints.py::test_health_returns_200_and_ok_status&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;tests/integration/test_api_endpoints.py::test_health_returns_200_and_ok_status&#34;, &#34;duration&#34;: &#34;4 ms&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/integration/test_api_endpoints.py::test_health_returns_200_and_ok_status&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;4 ms&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;No log output captured.&#34;}], &#34;tests/integration/test_api_endpoints.py::test_health_returns_models_loaded_count&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Failed&#34;, &#34;testId&#34;: &#34;tests/integration/test_api_endpoints.py::test_health_returns_models_loaded_count&#34;, &#34;duration&#34;: &#34;3 ms&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Failed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/integration/test_api_endpoints.py::test_health_returns_models_loaded_count&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;3 ms&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;app_client = &amp;lt;httpx.AsyncClient object at 0x000001D87C4CA4D0&amp;gt;\n\n    @pytest.mark.asyncio\n    async def test_health_returns_models_loaded_count(app_client: AsyncClient) -&amp;gt; None:\n        &amp;quot;&amp;quot;&amp;quot;\u6b63\u5411\uff1a\u5065\u5eb7\u68c0\u67e5\u5e94\u8fd4\u56de\u5df2\u52a0\u8f7d\u7684\u6a21\u578b\u6570\u91cf\uff08lifespan \u6ce8\u518c\u4e862\u4e2a\u6a21\u578b\uff09\u3002&amp;quot;&amp;quot;&amp;quot;\n        response = await app_client.get(&amp;quot;/api/v1/health&amp;quot;)\n        assert response.status_code == 200\n        body = response.json()\n        assert &amp;quot;models_loaded&amp;quot; in body, &amp;quot;\u54cd\u5e94\u4f53\u7f3a\u5c11 models_loaded \u5b57\u6bb5&amp;quot;\n&amp;gt;       assert body[&amp;quot;models_loaded&amp;quot;] &amp;gt;= 2, f&amp;quot;\u671f\u671b\u81f3\u5c112\u4e2a\u6a21\u578b\uff0c\u5b9e\u9645 {body[&amp;#x27;models_loaded&amp;#x27;]}&amp;quot;\nE       AssertionError: \u671f\u671b\u81f3\u5c112\u4e2a\u6a21\u578b\uff0c\u5b9e\u9645 0\nE       assert 0 &amp;gt;= 2\n\ntests\\integration\\test_api_endpoints.py:180: AssertionError\n&#34;}], &#34;tests/integration/test_api_endpoints.py::test_metrics_returns_200_with_engine_and_metrics&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Failed&#34;, &#34;testId&#34;: &#34;tests/integration/test_api_endpoints.py::test_metrics_returns_200_with_engine_and_metrics&#34;, &#34;duration&#34;: &#34;5 ms&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Failed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/integration/test_api_endpoints.py::test_metrics_returns_200_with_engine_and_metrics&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;5 ms&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;app_client = &amp;lt;httpx.AsyncClient object at 0x000001D87C4CA4D0&amp;gt;\n\n    @pytest.mark.asyncio\n    async def test_metrics_returns_200_with_engine_and_metrics(app_client: AsyncClient) -&amp;gt; None:\n        &amp;quot;&amp;quot;&amp;quot;\u6b63\u5411\uff1a\u6307\u6807\u7aef\u70b9\u5e94\u8fd4\u56de 200\uff0c\u5305\u542b engine \u548c metrics \u4e24\u4e2a\u9876\u5c42\u5b57\u6bb5\u3002&amp;quot;&amp;quot;&amp;quot;\n&amp;gt;       response = await app_client.get(&amp;quot;/api/v1/metrics&amp;quot;)\n                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n\ntests\\integration\\test_api_endpoints.py:189: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\httpx\\_client.py:1768: in get\n    return await self.request(\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\httpx\\_client.py:1540: in request\n    return await self.send(request, auth=auth, follow_redirects=follow_redirects)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\httpx\\_client.py:1629: in send\n    response = await self._send_handling_auth(\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\httpx\\_client.py:1657: in _send_handling_auth\n    response = await self._send_handling_redirects(\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\httpx\\_client.py:1694: in _send_handling_redirects\n    response = await self._send_single_request(request)\n               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\httpx\\_client.py:1730: in _send_single_request\n    response = await transport.handle_async_request(request)\n               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\httpx\\_transports\\asgi.py:170: in handle_async_request\n    await self.app(scope, receive, send)\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\fastapi\\applications.py:1160: in __call__\n    await super().__call__(scope, receive, send)\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\starlette\\applications.py:107: in __call__\n    await self.middleware_stack(scope, receive, send)\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\starlette\\middleware\\errors.py:186: in __call__\n    raise exc\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\starlette\\middleware\\errors.py:164: in __call__\n    await self.app(scope, receive, _send)\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\starlette\\middleware\\base.py:191: in __call__\n    with recv_stream, send_stream, collapse_excgroups():\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\contextlib.py:158: in __exit__\n    self.gen.throw(typ, value, traceback)\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\starlette\\_utils.py:87: in collapse_excgroups\n    raise exc\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\starlette\\middleware\\base.py:193: in __call__\n    response = await self.dispatch_func(request, call_next)\n               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nsrc\\middleware\\rate_limiter.py:218: in dispatch\n    response = await call_next(request)\n               ^^^^^^^^^^^^^^^^^^^^^^^^\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\starlette\\middleware\\base.py:168: in call_next\n    raise app_exc from app_exc.__cause__ or app_exc.__context__\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\starlette\\middleware\\base.py:144: in coro\n    await self.app(scope, receive_or_disconnect, send_no_error)\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\starlette\\middleware\\exceptions.py:63: in __call__\n    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\starlette\\_exception_handler.py:53: in wrapped_app\n    raise exc\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\starlette\\_exception_handler.py:42: in wrapped_app\n    await app(scope, receive, sender)\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\fastapi\\middleware\\asyncexitstack.py:18: in __call__\n    await self.app(scope, receive, send)\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\starlette\\routing.py:716: in __call__\n    await self.middleware_stack(scope, receive, send)\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\starlette\\routing.py:736: in app\n    await route.handle(scope, receive, send)\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\starlette\\routing.py:290: in handle\n    await self.app(scope, receive, send)\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\fastapi\\routing.py:130: in app\n    await wrap_app_handling_exceptions(app, request)(scope, receive, send)\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\starlette\\_exception_handler.py:53: in wrapped_app\n    raise exc\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\starlette\\_exception_handler.py:42: in wrapped_app\n    await app(scope, receive, sender)\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\fastapi\\routing.py:116: in app\n    response = await f(request)\n               ^^^^^^^^^^^^^^^^\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\fastapi\\routing.py:453: in app\n    solved_result = await solve_dependencies(\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\fastapi\\dependencies\\utils.py:677: in solve_dependencies\n    solved = await run_in_threadpool(call, **solved_result.values)\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\starlette\\concurrency.py:32: in run_in_threadpool\n    return await anyio.to_thread.run_sync(func)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nc:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\anyio\\to_thread.py:63: in run_sync\n    return await get_async_backend().run_sync_in_worker_thread(\nc:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\anyio\\_backends\\_asyncio.py:2502: in run_sync_in_worker_thread\n    return await future\n           ^^^^^^^^^^^^\nc:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\anyio\\_backends\\_asyncio.py:986: in run\n    result = context.run(func, *args)\n             ^^^^^^^^^^^^^^^^^^^^^^^^\n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n\n    def get_engine() -&amp;gt; InferenceEngine:\n        &amp;quot;&amp;quot;&amp;quot;\u4f9d\u8d56\u6ce8\u5165\uff1a\u63d0\u4f9b\u5168\u5c40 InferenceEngine \u5b9e\u4f8b\u3002\n    \n        Returns:\n            InferenceEngine \u5b9e\u4f8b\uff08\u5728 lifespan \u4e2d\u521d\u59cb\u5316\uff09\u3002\n    \n        Raises:\n            RuntimeError: \u5728 lifespan \u521d\u59cb\u5316\u524d\u8c03\u7528\u65f6\uff08\u6b63\u5e38\u4e0d\u5e94\u53d1\u751f\uff09\u3002\n        &amp;quot;&amp;quot;&amp;quot;\n        if _inference_engine is None:\n&amp;gt;           raise RuntimeError(&amp;quot;InferenceEngine not initialized&amp;quot;)\nE           RuntimeError: InferenceEngine not initialized\n\nsrc\\app.py:186: RuntimeError\n\n----------------------------- Captured stdout call -----------------------------\n2026-03-17 16:10:16 [error    ] unhandled_exception            [src.app] exc_msg=&amp;#x27;InferenceEngine not initialized&amp;#x27; exc_type=RuntimeError\n&#34;}], &#34;tests/integration/test_api_endpoints.py::test_metrics_engine_has_required_fields&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Failed&#34;, &#34;testId&#34;: &#34;tests/integration/test_api_endpoints.py::test_metrics_engine_has_required_fields&#34;, &#34;duration&#34;: &#34;5 ms&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Failed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/integration/test_api_endpoints.py::test_metrics_engine_has_required_fields&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;5 ms&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;app_client = &amp;lt;httpx.AsyncClient object at 0x000001D87C4CA4D0&amp;gt;\n\n    @pytest.mark.asyncio\n    async def test_metrics_engine_has_required_fields(app_client: AsyncClient) -&amp;gt; None:\n        &amp;quot;&amp;quot;&amp;quot;\u6b63\u5411\uff1aengine \u5b57\u6bb5\u5e94\u5305\u542b total_requests, success_count \u7b49\u7edf\u8ba1\u5b57\u6bb5\u3002&amp;quot;&amp;quot;&amp;quot;\n&amp;gt;       response = await app_client.get(&amp;quot;/api/v1/metrics&amp;quot;)\n                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n\ntests\\integration\\test_api_endpoints.py:199: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\httpx\\_client.py:1768: in get\n    return await self.request(\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\httpx\\_client.py:1540: in request\n    return await self.send(request, auth=auth, follow_redirects=follow_redirects)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\httpx\\_client.py:1629: in send\n    response = await self._send_handling_auth(\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\httpx\\_client.py:1657: in _send_handling_auth\n    response = await self._send_handling_redirects(\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\httpx\\_client.py:1694: in _send_handling_redirects\n    response = await self._send_single_request(request)\n               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\httpx\\_client.py:1730: in _send_single_request\n    response = await transport.handle_async_request(request)\n               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\httpx\\_transports\\asgi.py:170: in handle_async_request\n    await self.app(scope, receive, send)\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\fastapi\\applications.py:1160: in __call__\n    await super().__call__(scope, receive, send)\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\starlette\\applications.py:107: in __call__\n    await self.middleware_stack(scope, receive, send)\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\starlette\\middleware\\errors.py:186: in __call__\n    raise exc\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\starlette\\middleware\\errors.py:164: in __call__\n    await self.app(scope, receive, _send)\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\starlette\\middleware\\base.py:191: in __call__\n    with recv_stream, send_stream, collapse_excgroups():\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\contextlib.py:158: in __exit__\n    self.gen.throw(typ, value, traceback)\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\starlette\\_utils.py:87: in collapse_excgroups\n    raise exc\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\starlette\\middleware\\base.py:193: in __call__\n    response = await self.dispatch_func(request, call_next)\n               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nsrc\\middleware\\rate_limiter.py:218: in dispatch\n    response = await call_next(request)\n               ^^^^^^^^^^^^^^^^^^^^^^^^\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\starlette\\middleware\\base.py:168: in call_next\n    raise app_exc from app_exc.__cause__ or app_exc.__context__\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\starlette\\middleware\\base.py:144: in coro\n    await self.app(scope, receive_or_disconnect, send_no_error)\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\starlette\\middleware\\exceptions.py:63: in __call__\n    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\starlette\\_exception_handler.py:53: in wrapped_app\n    raise exc\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\starlette\\_exception_handler.py:42: in wrapped_app\n    await app(scope, receive, sender)\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\fastapi\\middleware\\asyncexitstack.py:18: in __call__\n    await self.app(scope, receive, send)\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\starlette\\routing.py:716: in __call__\n    await self.middleware_stack(scope, receive, send)\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\starlette\\routing.py:736: in app\n    await route.handle(scope, receive, send)\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\starlette\\routing.py:290: in handle\n    await self.app(scope, receive, send)\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\fastapi\\routing.py:130: in app\n    await wrap_app_handling_exceptions(app, request)(scope, receive, send)\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\starlette\\_exception_handler.py:53: in wrapped_app\n    raise exc\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\starlette\\_exception_handler.py:42: in wrapped_app\n    await app(scope, receive, sender)\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\fastapi\\routing.py:116: in app\n    response = await f(request)\n               ^^^^^^^^^^^^^^^^\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\fastapi\\routing.py:453: in app\n    solved_result = await solve_dependencies(\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\fastapi\\dependencies\\utils.py:677: in solve_dependencies\n    solved = await run_in_threadpool(call, **solved_result.values)\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nC:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\starlette\\concurrency.py:32: in run_in_threadpool\n    return await anyio.to_thread.run_sync(func)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nc:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\anyio\\to_thread.py:63: in run_sync\n    return await get_async_backend().run_sync_in_worker_thread(\nc:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\anyio\\_backends\\_asyncio.py:2502: in run_sync_in_worker_thread\n    return await future\n           ^^^^^^^^^^^^\nc:\\Users\\ZNBC\\.conda\\envs\\ai-infer-test\\Lib\\site-packages\\anyio\\_backends\\_asyncio.py:986: in run\n    result = context.run(func, *args)\n             ^^^^^^^^^^^^^^^^^^^^^^^^\n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n\n    def get_engine() -&amp;gt; InferenceEngine:\n        &amp;quot;&amp;quot;&amp;quot;\u4f9d\u8d56\u6ce8\u5165\uff1a\u63d0\u4f9b\u5168\u5c40 InferenceEngine \u5b9e\u4f8b\u3002\n    \n        Returns:\n            InferenceEngine \u5b9e\u4f8b\uff08\u5728 lifespan \u4e2d\u521d\u59cb\u5316\uff09\u3002\n    \n        Raises:\n            RuntimeError: \u5728 lifespan \u521d\u59cb\u5316\u524d\u8c03\u7528\u65f6\uff08\u6b63\u5e38\u4e0d\u5e94\u53d1\u751f\uff09\u3002\n        &amp;quot;&amp;quot;&amp;quot;\n        if _inference_engine is None:\n&amp;gt;           raise RuntimeError(&amp;quot;InferenceEngine not initialized&amp;quot;)\nE           RuntimeError: InferenceEngine not initialized\n\nsrc\\app.py:186: RuntimeError\n\n----------------------------- Captured stdout call -----------------------------\n2026-03-17 16:10:17 [error    ] unhandled_exception            [src.app] exc_msg=&amp;#x27;InferenceEngine not initialized&amp;#x27; exc_type=RuntimeError\n&#34;}], &#34;tests/integration/test_concurrent_inference.py::test_concurrent_classify_50_requests_all_succeed&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Failed&#34;, &#34;testId&#34;: &#34;tests/integration/test_concurrent_inference.py::test_concurrent_classify_50_requests_all_succeed&#34;, &#34;duration&#34;: &#34;73 ms&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Failed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/integration/test_concurrent_inference.py::test_concurrent_classify_50_requests_all_succeed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;73 ms&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;app_client = &amp;lt;httpx.AsyncClient object at 0x000001D87D6798D0&amp;gt;\n\n    @pytest.mark.asyncio\n    async def test_concurrent_classify_50_requests_all_succeed(app_client: AsyncClient) -&amp;gt; None:\n        &amp;quot;&amp;quot;&amp;quot;\u5e76\u53d1\uff1a50 \u4e2a\u5e76\u53d1\u5206\u7c7b\u8bf7\u6c42\uff0c\u5168\u90e8\u5e94\u8fd4\u56de\u6210\u529f\u54cd\u5e94\uff08\u65e0\u5f02\u5e38\u3001\u65e0\u6b7b\u9501\uff09\u3002\n    \n        \u4f7f\u7528 return_exceptions=True \u6536\u96c6\u6240\u6709\u7ed3\u679c\uff08\u5305\u62ec\u5f02\u5e38\uff09\uff0c\n        \u6700\u540e\u518d\u7edf\u4e00\u65ad\u8a00\u2014\u2014\u8fd9\u6837\u5373\u4f7f\u90e8\u5206\u8bf7\u6c42\u5931\u8d25\u4e5f\u80fd\u770b\u5230\u5168\u8c8c\uff0c\u800c\u975e\u5728\u7b2c\u4e00\u4e2a\u5931\u8d25\u65f6\u505c\u6b62\u3002\n        &amp;quot;&amp;quot;&amp;quot;\n        texts = [\n            &amp;quot;\u4e2d\u56fd\u961f\u8d62\u5f97\u4e16\u754c\u676f\u5c0f\u7ec4\u8d5b\u9996\u80dc&amp;quot;,\n            &amp;quot;\u65b0\u6b3e\u82af\u7247\u91c7\u75283nm\u5de5\u827a\u5236\u7a0b&amp;quot;,\n            &amp;quot;\u56fd\u4ea7\u7535\u5f71\u7968\u623f\u7a81\u7834\u767e\u4ebf\u521b\u5386\u53f2&amp;quot;,\n            &amp;quot;A\u80a1\u5e02\u573a\u6210\u4ea4\u91cf\u521b\u5e74\u5185\u65b0\u9ad8&amp;quot;,\n            &amp;quot;\u79d1\u5b66\u5bb6\u53d1\u73b0\u65b0\u578b\u6750\u6599\u5bfc\u7535\u6027\u80fd\u5353\u8d8a&amp;quot;,\n        ]\n        n_requests = 50\n    \n        async def single_request(idx: int):\n            text = texts[idx % len(texts)]\n            return await app_client.post(&amp;quot;/api/v1/classify&amp;quot;, json={&amp;quot;text&amp;quot;: text})\n    \n        # asyncio.gather \u5e76\u53d1\u53d1\u8d77 50 \u4e2a\u8bf7\u6c42\n        # return_exceptions=True\uff1a\u5f02\u5e38\u4f5c\u4e3a\u666e\u901a\u503c\u8fd4\u56de\uff0c\u4e0d\u4e2d\u65ad\u5176\u4ed6\u534f\u7a0b\n        results = await asyncio.gather(\n            *[single_request(i) for i in range(n_requests)],\n            return_exceptions=True,\n        )\n    \n        # \u7edf\u8ba1\u6210\u529f/\u5931\u8d25\u6570\u91cf\n        exceptions = [r for r in results if isinstance(r, Exception)]\n        responses = [r for r in results if not isinstance(r, Exception)]\n        failed_responses = [r for r in responses if r.status_code != 200]\n    \n&amp;gt;       assert len(exceptions) == 0, (\n            f&amp;quot;\u6709 {len(exceptions)} \u4e2a\u8bf7\u6c42\u629b\u51fa\u5f02\u5e38: {exceptions[:3]}&amp;quot;\n        )\nE       AssertionError: \u6709 20 \u4e2a\u8bf7\u6c42\u629b\u51fa\u5f02\u5e38: [RuntimeError(&amp;#x27;InferenceEngine not initialized&amp;#x27;), RuntimeError(&amp;#x27;InferenceEngine not initialized&amp;#x27;), RuntimeError(&amp;#x27;InferenceEngine not initialized&amp;#x27;)]\nE       assert 20 == 0\nE        +  where 20 = len([RuntimeError(&amp;#x27;InferenceEngine not initialized&amp;#x27;), RuntimeError(&amp;#x27;InferenceEngine not initialized&amp;#x27;), RuntimeError(&amp;#x27;InferenceEngine not initialized&amp;#x27;), RuntimeError(&amp;#x27;InferenceEngine not initialized&amp;#x27;), RuntimeError(&amp;#x27;InferenceEngine not initialized&amp;#x27;), RuntimeError(&amp;#x27;InferenceEngine not initialized&amp;#x27;), ...])\n\ntests\\integration\\test_concurrent_inference.py:74: AssertionError\n\n----------------------------- Captured stdout call -----------------------------\n2026-03-17 16:10:17 [warning  ] rate_limit_exceeded            [src.middleware.rate_limiter] client_id=127.0.0.1 path=/api/v1/classify\n2026-03-17 16:10:17 [warning  ] rate_limit_exceeded            [src.middleware.rate_limiter] client_id=127.0.0.1 path=/api/v1/classify\n2026-03-17 16:10:17 [warning  ] rate_limit_exceeded            [src.middleware.rate_limiter] client_id=127.0.0.1 path=/api/v1/classify\n2026-03-17 16:10:17 [warning  ] rate_limit_exceeded            [src.middleware.rate_limiter] client_id=127.0.0.1 path=/api/v1/classify\n2026-03-17 16:10:17 [warning  ] rate_limit_exceeded            [src.middleware.rate_limiter] client_id=127.0.0.1 path=/api/v1/classify\n2026-03-17 16:10:17 [warning  ] rate_limit_exceeded            [src.middleware.rate_limiter] client_id=127.0.0.1 path=/api/v1/classify\n2026-03-17 16:10:17 [warning  ] rate_limit_exceeded            [src.middleware.rate_limiter] client_id=127.0.0.1 path=/api/v1/classify\n2026-03-17 16:10:17 [warning  ] rate_limit_exceeded            [src.middleware.rate_limiter] client_id=127.0.0.1 path=/api/v1/classify\n2026-03-17 16:10:17 [warning  ] rate_limit_exceeded            [src.middleware.rate_limiter] client_id=127.0.0.1 path=/api/v1/classify\n2026-03-17 16:10:17 [warning  ] rate_limit_exceeded            [src.middleware.rate_limiter] client_id=127.0.0.1 path=/api/v1/classify\n2026-03-17 16:10:17 [warning  ] rate_limit_exceeded            [src.middleware.rate_limiter] client_id=127.0.0.1 path=/api/v1/classify\n2026-03-17 16:10:17 [warning  ] rate_limit_exceeded            [src.middleware.rate_limiter] client_id=127.0.0.1 path=/api/v1/classify\n2026-03-17 16:10:17 [warning  ] rate_limit_exceeded            [src.middleware.rate_limiter] client_id=127.0.0.1 path=/api/v1/classify\n2026-03-17 16:10:17 [warning  ] rate_limit_exceeded            [src.middleware.rate_limiter] client_id=127.0.0.1 path=/api/v1/classify\n2026-03-17 16:10:17 [warning  ] rate_limit_exceeded            [src.middleware.rate_limiter] client_id=127.0.0.1 path=/api/v1/classify\n2026-03-17 16:10:17 [warning  ] rate_limit_exceeded            [src.middleware.rate_limiter] client_id=127.0.0.1 path=/api/v1/classify\n2026-03-17 16:10:17 [warning  ] rate_limit_exceeded            [src.middleware.rate_limiter] client_id=127.0.0.1 path=/api/v1/classify\n2026-03-17 16:10:17 [warning  ] rate_limit_exceeded            [src.middleware.rate_limiter] client_id=127.0.0.1 path=/api/v1/classify\n2026-03-17 16:10:17 [warning  ] rate_limit_exceeded            [src.middleware.rate_limiter] client_id=127.0.0.1 path=/api/v1/classify\n2026-03-17 16:10:17 [warning  ] rate_limit_exceeded            [src.middleware.rate_limiter] client_id=127.0.0.1 path=/api/v1/classify\n2026-03-17 16:10:17 [warning  ] rate_limit_exceeded            [src.middleware.rate_limiter] client_id=127.0.0.1 path=/api/v1/classify\n2026-03-17 16:10:17 [warning  ] rate_limit_exceeded            [src.middleware.rate_limiter] client_id=127.0.0.1 path=/api/v1/classify\n2026-03-17 16:10:17 [warning  ] rate_limit_exceeded            [src.middleware.rate_limiter] client_id=127.0.0.1 path=/api/v1/classify\n2026-03-17 16:10:17 [warning  ] rate_limit_exceeded            [src.middleware.rate_limiter] client_id=127.0.0.1 path=/api/v1/classify\n2026-03-17 16:10:17 [warning  ] rate_limit_exceeded            [src.middleware.rate_limiter] client_id=127.0.0.1 path=/api/v1/classify\n2026-03-17 16:10:17 [warning  ] rate_limit_exceeded            [src.middleware.rate_limiter] client_id=127.0.0.1 path=/api/v1/classify\n2026-03-17 16:10:17 [warning  ] rate_limit_exceeded            [src.middleware.rate_limiter] client_id=127.0.0.1 path=/api/v1/classify\n2026-03-17 16:10:17 [warning  ] rate_limit_exceeded            [src.middleware.rate_limiter] client_id=127.0.0.1 path=/api/v1/classify\n2026-03-17 16:10:17 [warning  ] rate_limit_exceeded            [src.middleware.rate_limiter] client_id=127.0.0.1 path=/api/v1/classify\n2026-03-17 16:10:17 [warning  ] rate_limit_exceeded            [src.middleware.rate_limiter] client_id=127.0.0.1 path=/api/v1/classify\n2026-03-17 16:10:17 [error    ] unhandled_exception            [src.app] exc_msg=&amp;#x27;InferenceEngine not initialized&amp;#x27; exc_type=RuntimeError\n2026-03-17 16:10:17 [error    ] unhandled_exception            [src.app] exc_msg=&amp;#x27;InferenceEngine not initialized&amp;#x27; exc_type=RuntimeError\n2026-03-17 16:10:17 [error    ] unhandled_exception            [src.app] exc_msg=&amp;#x27;InferenceEngine not initialized&amp;#x27; exc_type=RuntimeError\n2026-03-17 16:10:17 [error    ] unhandled_exception            [src.app] exc_msg=&amp;#x27;InferenceEngine not initialized&amp;#x27; exc_type=RuntimeError\n2026-03-17 16:10:17 [error    ] unhandled_exception            [src.app] exc_msg=&amp;#x27;InferenceEngine not initialized&amp;#x27; exc_type=RuntimeError\n2026-03-17 16:10:17 [error    ] unhandled_exception            [src.app] exc_msg=&amp;#x27;InferenceEngine not initialized&amp;#x27; exc_type=RuntimeError\n2026-03-17 16:10:17 [error    ] unhandled_exception            [src.app] exc_msg=&amp;#x27;InferenceEngine not initialized&amp;#x27; exc_type=RuntimeError\n2026-03-17 16:10:17 [error    ] unhandled_exception            [src.app] exc_msg=&amp;#x27;InferenceEngine not initialized&amp;#x27; exc_type=RuntimeError\n2026-03-17 16:10:17 [error    ] unhandled_exception            [src.app] exc_msg=&amp;#x27;InferenceEngine not initialized&amp;#x27; exc_type=RuntimeError\n2026-03-17 16:10:17 [error    ] unhandled_exception            [src.app] exc_msg=&amp;#x27;InferenceEngine not initialized&amp;#x27; exc_type=RuntimeError\n2026-03-17 16:10:17 [error    ] unhandled_exception            [src.app] exc_msg=&amp;#x27;InferenceEngine not initialized&amp;#x27; exc_type=RuntimeError\n2026-03-17 16:10:17 [error    ] unhandled_exception            [src.app] exc_msg=&amp;#x27;InferenceEngine not initialized&amp;#x27; exc_type=RuntimeError\n2026-03-17 16:10:17 [error    ] unhandled_exception            [src.app] exc_msg=&amp;#x27;InferenceEngine not initialized&amp;#x27; exc_type=RuntimeError\n2026-03-17 16:10:17 [error    ] unhandled_exception            [src.app] exc_msg=&amp;#x27;InferenceEngine not initialized&amp;#x27; exc_type=RuntimeError\n2026-03-17 16:10:17 [error    ] unhandled_exception            [src.app] exc_msg=&amp;#x27;InferenceEngine not initialized&amp;#x27; exc_type=RuntimeError\n2026-03-17 16:10:17 [error    ] unhandled_exception            [src.app] exc_msg=&amp;#x27;InferenceEngine not initialized&amp;#x27; exc_type=RuntimeError\n2026-03-17 16:10:17 [error    ] unhandled_exception            [src.app] exc_msg=&amp;#x27;InferenceEngine not initialized&amp;#x27; exc_type=RuntimeError\n2026-03-17 16:10:17 [error    ] unhandled_exception            [src.app] exc_msg=&amp;#x27;InferenceEngine not initialized&amp;#x27; exc_type=RuntimeError\n2026-03-17 16:10:17 [error    ] unhandled_exception            [src.app] exc_msg=&amp;#x27;InferenceEngine not initialized&amp;#x27; exc_type=RuntimeError\n2026-03-17 16:10:17 [error    ] unhandled_exception            [src.app] exc_msg=&amp;#x27;InferenceEngine not initialized&amp;#x27; exc_type=RuntimeError\n&#34;}], &#34;tests/integration/test_concurrent_inference.py::test_concurrent_classify_no_deadlock_within_timeout&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Failed&#34;, &#34;testId&#34;: &#34;tests/integration/test_concurrent_inference.py::test_concurrent_classify_no_deadlock_within_timeout&#34;, &#34;duration&#34;: &#34;64 ms&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Failed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/integration/test_concurrent_inference.py::test_concurrent_classify_no_deadlock_within_timeout&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;64 ms&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;app_client = &amp;lt;httpx.AsyncClient object at 0x000001D87D6798D0&amp;gt;\n\n    @pytest.mark.asyncio\n    async def test_concurrent_classify_no_deadlock_within_timeout(app_client: AsyncClient) -&amp;gt; None:\n        &amp;quot;&amp;quot;&amp;quot;\u5e76\u53d1\uff1a50 \u4e2a\u5e76\u53d1\u8bf7\u6c42\u5e94\u5728\u5408\u7406\u65f6\u95f4\u5185\u5168\u90e8\u5b8c\u6210\uff08\u9a8c\u8bc1\u65e0\u6b7b\u9501\uff09\u3002\n    \n        \u8d85\u65f6\u65f6\u95f4\u8bbe\u4e3a 30 \u79d2\uff0c\u8fdc\u5927\u4e8e\u7406\u8bba\u503c\uff08~650ms\uff09\uff0c\n        \u53ea\u8981\u4e0d\u6b7b\u9501\uff0c\u8fd9\u4e2a\u6d4b\u8bd5\u5fc5\u7136\u901a\u8fc7\u3002\n        &amp;quot;&amp;quot;&amp;quot;\n        n_requests = 50\n    \n        async def run_all():\n            results = await asyncio.gather(\n                *[\n                    app_client.post(\n                        &amp;quot;/api/v1/classify&amp;quot;,\n                        json={&amp;quot;text&amp;quot;: f&amp;quot;\u6d4b\u8bd5\u6587\u672c\u7b2c{i}\u6761\u5185\u5bb9\u7528\u4e8e\u5e76\u53d1\u9a8c\u8bc1&amp;quot;},\n                    )\n                    for i in range(n_requests)\n                ],\n                return_exceptions=True,\n            )\n            return results\n    \n        # 30 \u79d2\u8d85\u65f6\u515c\u5e95\uff0c\u89e6\u53d1\u8bf4\u660e\u53ef\u80fd\u53d1\u751f\u4e86\u6b7b\u9501\n        try:\n            results = await asyncio.wait_for(run_all(), timeout=30.0)\n        except asyncio.TimeoutError:\n            pytest.fail(\n                f&amp;quot;{n_requests} \u4e2a\u5e76\u53d1\u8bf7\u6c42\u5728 30 \u79d2\u5185\u672a\u5b8c\u6210\uff0c&amp;quot;\n                &amp;quot;\u53ef\u80fd\u53d1\u751f\u4e86\u6b7b\u9501\u6216\u4fe1\u53f7\u91cf\u6cc4\u6f0f&amp;quot;\n            )\n    \n        successful = [r for r in results if not isinstance(r, Exception) and r.status_code == 200]\n&amp;gt;       assert len(successful) == n_requests, (\n            f&amp;quot;\u671f\u671b {n_requests} \u4e2a\u6210\u529f\u54cd\u5e94\uff0c\u5b9e\u9645 {len(successful)}&amp;quot;\n        )\nE       AssertionError: \u671f\u671b 50 \u4e2a\u6210\u529f\u54cd\u5e94\uff0c\u5b9e\u9645 0\nE       assert 0 == 50\nE        +  where 0 = len([])\n\ntests\\integration\\test_concurrent_inference.py:116: AssertionError\n\n----------------------------- Captured stdout call -----------------------------\n2026-03-17 16:10:17 [warning  ] rate_limit_exceeded            [src.middleware.rate_limiter] client_id=127.0.0.1 path=/api/v1/classify\n2026-03-17 16:10:17 [warning  ] rate_limit_exceeded            [src.middleware.rate_limiter] client_id=127.0.0.1 path=/api/v1/classify\n2026-03-17 16:10:17 [warning  ] rate_limit_exceeded            [src.middleware.rate_limiter] client_id=127.0.0.1 path=/api/v1/classify\n2026-03-17 16:10:17 [warning  ] rate_limit_exceeded            [src.middleware.rate_limiter] client_id=127.0.0.1 path=/api/v1/classify\n2026-03-17 16:10:17 [warning  ] rate_limit_exceeded            [src.middleware.rate_limiter] client_id=127.0.0.1 path=/api/v1/classify\n2026-03-17 16:10:17 [warning  ] rate_limit_exceeded            [src.middleware.rate_limiter] client_id=127.0.0.1 path=/api/v1/classify\n2026-03-17 16:10:17 [warning  ] rate_limit_exceeded            [src.middleware.rate_limiter] client_id=127.0.0.1 path=/api/v1/classify\n2026-03-17 16:10:17 [warning  ] rate_limit_exceeded            [src.middleware.rate_limiter] client_id=127.0.0.1 path=/api/v1/classify\n2026-03-17 16:10:17 [warning  ] rate_limit_exceeded            [src.middleware.rate_limiter] client_id=127.0.0.1 path=/api/v1/classify\n2026-03-17 16:10:17 [warning  ] rate_limit_exceeded            [src.middleware.rate_limiter] client_id=127.0.0.1 path=/api/v1/classify\n2026-03-17 16:10:17 [warning  ] rate_limit_exceeded            [src.middleware.rate_limiter] client_id=127.0.0.1 path=/api/v1/classify\n2026-03-17 16:10:17 [warning  ] rate_limit_exceeded            [src.middleware.rate_limiter] client_id=127.0.0.1 path=/api/v1/classify\n2026-03-17 16:10:17 [warning  ] rate_limit_exceeded            [src.middleware.rate_limiter] client_id=127.0.0.1 path=/api/v1/classify\n2026-03-17 16:10:17 [warning  ] rate_limit_exceeded            [src.middleware.rate_limiter] client_id=127.0.0.1 path=/api/v1/classify\n2026-03-17 16:10:17 [warning  ] rate_limit_exceeded            [src.middleware.rate_limiter] client_id=127.0.0.1 path=/api/v1/classify\n2026-03-17 16:10:17 [warning  ] rate_limit_exceeded            [src.middleware.rate_limiter] client_id=127.0.0.1 path=/api/v1/classify\n2026-03-17 16:10:17 [warning  ] rate_limit_exceeded            [src.middleware.rate_limiter] client_id=127.0.0.1 path=/api/v1/classify\n2026-03-17 16:10:17 [warning  ] rate_limit_exceeded            [src.middleware.rate_limiter] client_id=127.0.0.1 path=/api/v1/classify\n2026-03-17 16:10:17 [warning  ] rate_limit_exceeded            [src.middleware.rate_limiter] client_id=127.0.0.1 path=/api/v1/classify\n2026-03-17 16:10:17 [warning  ] rate_limit_exceeded            [src.middleware.rate_limiter] client_id=127.0.0.1 path=/api/v1/classify\n2026-03-17 16:10:17 [warning  ] rate_limit_exceeded            [src.middleware.rate_limiter] client_id=127.0.0.1 path=/api/v1/classify\n2026-03-17 16:10:17 [warning  ] rate_limit_exceeded            [src.middleware.rate_limiter] client_id=127.0.0.1 path=/api/v1/classify\n2026-03-17 16:10:17 [warning  ] rate_limit_exceeded            [src.middleware.rate_limiter] client_id=127.0.0.1 path=/api/v1/classify\n2026-03-17 16:10:17 [warning  ] rate_limit_exceeded            [src.middleware.rate_limiter] client_id=127.0.0.1 path=/api/v1/classify\n2026-03-17 16:10:17 [warning  ] rate_limit_exceeded            [src.middleware.rate_limiter] client_id=127.0.0.1 path=/api/v1/classify\n2026-03-17 16:10:17 [warning  ] rate_limit_exceeded            [src.middleware.rate_limiter] client_id=127.0.0.1 path=/api/v1/classify\n2026-03-17 16:10:17 [warning  ] rate_limit_exceeded            [src.middleware.rate_limiter] client_id=127.0.0.1 path=/api/v1/classify\n2026-03-17 16:10:17 [warning  ] rate_limit_exceeded            [src.middleware.rate_limiter] client_id=127.0.0.1 path=/api/v1/classify\n2026-03-17 16:10:17 [warning  ] rate_limit_exceeded            [src.middleware.rate_limiter] client_id=127.0.0.1 path=/api/v1/classify\n2026-03-17 16:10:17 [warning  ] rate_limit_exceeded            [src.middleware.rate_limiter] client_id=127.0.0.1 path=/api/v1/classify\n2026-03-17 16:10:17 [warning  ] rate_limit_exceeded            [src.middleware.rate_limiter] client_id=127.0.0.1 path=/api/v1/classify\n2026-03-17 16:10:17 [warning  ] rate_limit_exceeded            [src.middleware.rate_limiter] client_id=127.0.0.1 path=/api/v1/classify\n2026-03-17 16:10:17 [warning  ] rate_limit_exceeded            [src.middleware.rate_limiter] client_id=127.0.0.1 path=/api/v1/classify\n2026-03-17 16:10:17 [warning  ] rate_limit_exceeded            [src.middleware.rate_limiter] client_id=127.0.0.1 path=/api/v1/classify\n2026-03-17 16:10:17 [warning  ] rate_limit_exceeded            [src.middleware.rate_limiter] client_id=127.0.0.1 path=/api/v1/classify\n2026-03-17 16:10:17 [warning  ] rate_limit_exceeded            [src.middleware.rate_limiter] client_id=127.0.0.1 path=/api/v1/classify\n2026-03-17 16:10:17 [warning  ] rate_limit_exceeded            [src.middleware.rate_limiter] client_id=127.0.0.1 path=/api/v1/classify\n2026-03-17 16:10:17 [warning  ] rate_limit_exceeded            [src.middleware.rate_limiter] client_id=127.0.0.1 path=/api/v1/classify\n2026-03-17 16:10:17 [warning  ] rate_limit_exceeded            [src.middleware.rate_limiter] client_id=127.0.0.1 path=/api/v1/classify\n2026-03-17 16:10:17 [warning  ] rate_limit_exceeded            [src.middleware.rate_limiter] client_id=127.0.0.1 path=/api/v1/classify\n2026-03-17 16:10:17 [warning  ] rate_limit_exceeded            [src.middleware.rate_limiter] client_id=127.0.0.1 path=/api/v1/classify\n2026-03-17 16:10:17 [warning  ] rate_limit_exceeded            [src.middleware.rate_limiter] client_id=127.0.0.1 path=/api/v1/classify\n2026-03-17 16:10:17 [warning  ] rate_limit_exceeded            [src.middleware.rate_limiter] client_id=127.0.0.1 path=/api/v1/classify\n2026-03-17 16:10:17 [warning  ] rate_limit_exceeded            [src.middleware.rate_limiter] client_id=127.0.0.1 path=/api/v1/classify\n2026-03-17 16:10:17 [warning  ] rate_limit_exceeded            [src.middleware.rate_limiter] client_id=127.0.0.1 path=/api/v1/classify\n2026-03-17 16:10:17 [warning  ] rate_limit_exceeded            [src.middleware.rate_limiter] client_id=127.0.0.1 path=/api/v1/classify\n2026-03-17 16:10:17 [warning  ] rate_limit_exceeded            [src.middleware.rate_limiter] client_id=127.0.0.1 path=/api/v1/classify\n2026-03-17 16:10:17 [warning  ] rate_limit_exceeded            [src.middleware.rate_limiter] client_id=127.0.0.1 path=/api/v1/classify\n2026-03-17 16:10:17 [warning  ] rate_limit_exceeded            [src.middleware.rate_limiter] client_id=127.0.0.1 path=/api/v1/classify\n2026-03-17 16:10:17 [error    ] unhandled_exception            [src.app] exc_msg=&amp;#x27;InferenceEngine not initialized&amp;#x27; exc_type=RuntimeError\n&#34;}], &#34;tests/integration/test_concurrent_inference.py::test_concurrent_classify_latency_statistics&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Failed&#34;, &#34;testId&#34;: &#34;tests/integration/test_concurrent_inference.py::test_concurrent_classify_latency_statistics&#34;, &#34;duration&#34;: &#34;63 ms&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Failed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/integration/test_concurrent_inference.py::test_concurrent_classify_latency_statistics&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;63 ms&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;app_client = &amp;lt;httpx.AsyncClient object at 0x000001D87D6798D0&amp;gt;\n\n    @pytest.mark.asyncio\n    async def test_concurrent_classify_latency_statistics(app_client: AsyncClient) -&amp;gt; None:\n        &amp;quot;&amp;quot;&amp;quot;\u5e76\u53d1\uff1a\u7edf\u8ba1 50 \u4e2a\u5e76\u53d1\u8bf7\u6c42\u7684 P50/P95 \u5ef6\u8fdf\uff0c\u9a8c\u8bc1\u6027\u80fd\u5408\u7406\u3002\n    \n        P50 &amp;lt; 2000ms\uff0cP95 &amp;lt; 5000ms\uff08\u5bbd\u677e\u9608\u503c\uff0c\u9002\u5408 CI \u73af\u5883\uff09\u3002\n        \u6ce8\u610f\uff1a\u8fd9\u91cc\u7edf\u8ba1\u7684\u662f\u5ba2\u6237\u7aef\u611f\u77e5\u5ef6\u8fdf\uff08\u542b\u6392\u961f\u7b49\u5f85\uff09\uff0c\u4e0d\u662f\u5355\u6b21\u63a8\u7406\u5ef6\u8fdf\u3002\n        &amp;quot;&amp;quot;&amp;quot;\n        import time\n    \n        n_requests = 50\n        latencies: list[float] = []\n    \n        async def timed_request(idx: int) -&amp;gt; float:\n            start = time.monotonic()\n            resp = await app_client.post(\n                &amp;quot;/api/v1/classify&amp;quot;,\n                json={&amp;quot;text&amp;quot;: f&amp;quot;\u5e76\u53d1\u5ef6\u8fdf\u6d4b\u8bd5\u7b2c{idx}\u6761&amp;quot;},\n            )\n            elapsed_ms = (time.monotonic() - start) * 1000\n            assert resp.status_code == 200, f&amp;quot;\u8bf7\u6c42 {idx} \u5931\u8d25: {resp.status_code}&amp;quot;\n            return elapsed_ms\n    \n        results = await asyncio.gather(\n            *[timed_request(i) for i in range(n_requests)],\n            return_exceptions=True,\n        )\n    \n        # \u8fc7\u6ee4\u5f02\u5e38\n        latencies = [r for r in results if isinstance(r, float)]\n&amp;gt;       assert len(latencies) == n_requests, f&amp;quot;\u90e8\u5206\u8bf7\u6c42\u5f02\u5e38\uff0c\u53ea\u5f97\u5230 {len(latencies)} \u4e2a\u5ef6\u8fdf\u6570\u636e&amp;quot;\nE       AssertionError: \u90e8\u5206\u8bf7\u6c42\u5f02\u5e38\uff0c\u53ea\u5f97\u5230 0 \u4e2a\u5ef6\u8fdf\u6570\u636e\nE       assert 0 == 50\nE        +  where 0 = len([])\n\ntests\\integration\\test_concurrent_inference.py:153: AssertionError\n\n----------------------------- Captured stdout call -----------------------------\n2026-03-17 16:10:17 [warning  ] rate_limit_exceeded            [src.middleware.rate_limiter] client_id=127.0.0.1 path=/api/v1/classify\n2026-03-17 16:10:17 [warning  ] rate_limit_exceeded            [src.middleware.rate_limiter] client_id=127.0.0.1 path=/api/v1/classify\n2026-03-17 16:10:17 [warning  ] rate_limit_exceeded            [src.middleware.rate_limiter] client_id=127.0.0.1 path=/api/v1/classify\n2026-03-17 16:10:17 [warning  ] rate_limit_exceeded            [src.middleware.rate_limiter] client_id=127.0.0.1 path=/api/v1/classify\n2026-03-17 16:10:17 [warning  ] rate_limit_exceeded            [src.middleware.rate_limiter] client_id=127.0.0.1 path=/api/v1/classify\n2026-03-17 16:10:17 [warning  ] rate_limit_exceeded            [src.middleware.rate_limiter] client_id=127.0.0.1 path=/api/v1/classify\n2026-03-17 16:10:17 [warning  ] rate_limit_exceeded            [src.middleware.rate_limiter] client_id=127.0.0.1 path=/api/v1/classify\n2026-03-17 16:10:17 [warning  ] rate_limit_exceeded            [src.middleware.rate_limiter] client_id=127.0.0.1 path=/api/v1/classify\n2026-03-17 16:10:17 [warning  ] rate_limit_exceeded            [src.middleware.rate_limiter] client_id=127.0.0.1 path=/api/v1/classify\n2026-03-17 16:10:17 [warning  ] rate_limit_exceeded            [src.middleware.rate_limiter] client_id=127.0.0.1 path=/api/v1/classify\n2026-03-17 16:10:17 [warning  ] rate_limit_exceeded            [src.middleware.rate_limiter] client_id=127.0.0.1 path=/api/v1/classify\n2026-03-17 16:10:17 [warning  ] rate_limit_exceeded            [src.middleware.rate_limiter] client_id=127.0.0.1 path=/api/v1/classify\n2026-03-17 16:10:17 [warning  ] rate_limit_exceeded            [src.middleware.rate_limiter] client_id=127.0.0.1 path=/api/v1/classify\n2026-03-17 16:10:17 [warning  ] rate_limit_exceeded            [src.middleware.rate_limiter] client_id=127.0.0.1 path=/api/v1/classify\n2026-03-17 16:10:17 [warning  ] rate_limit_exceeded            [src.middleware.rate_limiter] client_id=127.0.0.1 path=/api/v1/classify\n2026-03-17 16:10:17 [warning  ] rate_limit_exceeded            [src.middleware.rate_limiter] client_id=127.0.0.1 path=/api/v1/classify\n2026-03-17 16:10:17 [warning  ] rate_limit_exceeded            [src.middleware.rate_limiter] client_id=127.0.0.1 path=/api/v1/classify\n2026-03-17 16:10:17 [warning  ] rate_limit_exceeded            [src.middleware.rate_limiter] client_id=127.0.0.1 path=/api/v1/classify\n2026-03-17 16:10:17 [warning  ] rate_limit_exceeded            [src.middleware.rate_limiter] client_id=127.0.0.1 path=/api/v1/classify\n2026-03-17 16:10:17 [warning  ] rate_limit_exceeded            [src.middleware.rate_limiter] client_id=127.0.0.1 path=/api/v1/classify\n2026-03-17 16:10:17 [warning  ] rate_limit_exceeded            [src.middleware.rate_limiter] client_id=127.0.0.1 path=/api/v1/classify\n2026-03-17 16:10:17 [warning  ] rate_limit_exceeded            [src.middleware.rate_limiter] client_id=127.0.0.1 path=/api/v1/classify\n2026-03-17 16:10:17 [warning  ] rate_limit_exceeded            [src.middleware.rate_limiter] client_id=127.0.0.1 path=/api/v1/classify\n2026-03-17 16:10:17 [warning  ] rate_limit_exceeded            [src.middleware.rate_limiter] client_id=127.0.0.1 path=/api/v1/classify\n2026-03-17 16:10:17 [warning  ] rate_limit_exceeded            [src.middleware.rate_limiter] client_id=127.0.0.1 path=/api/v1/classify\n2026-03-17 16:10:17 [warning  ] rate_limit_exceeded            [src.middleware.rate_limiter] client_id=127.0.0.1 path=/api/v1/classify\n2026-03-17 16:10:17 [warning  ] rate_limit_exceeded            [src.middleware.rate_limiter] client_id=127.0.0.1 path=/api/v1/classify\n2026-03-17 16:10:17 [warning  ] rate_limit_exceeded            [src.middleware.rate_limiter] client_id=127.0.0.1 path=/api/v1/classify\n2026-03-17 16:10:17 [warning  ] rate_limit_exceeded            [src.middleware.rate_limiter] client_id=127.0.0.1 path=/api/v1/classify\n2026-03-17 16:10:17 [warning  ] rate_limit_exceeded            [src.middleware.rate_limiter] client_id=127.0.0.1 path=/api/v1/classify\n2026-03-17 16:10:17 [warning  ] rate_limit_exceeded            [src.middleware.rate_limiter] client_id=127.0.0.1 path=/api/v1/classify\n2026-03-17 16:10:17 [warning  ] rate_limit_exceeded            [src.middleware.rate_limiter] client_id=127.0.0.1 path=/api/v1/classify\n2026-03-17 16:10:17 [warning  ] rate_limit_exceeded            [src.middleware.rate_limiter] client_id=127.0.0.1 path=/api/v1/classify\n2026-03-17 16:10:17 [warning  ] rate_limit_exceeded            [src.middleware.rate_limiter] client_id=127.0.0.1 path=/api/v1/classify\n2026-03-17 16:10:17 [warning  ] rate_limit_exceeded            [src.middleware.rate_limiter] client_id=127.0.0.1 path=/api/v1/classify\n2026-03-17 16:10:17 [warning  ] rate_limit_exceeded            [src.middleware.rate_limiter] client_id=127.0.0.1 path=/api/v1/classify\n2026-03-17 16:10:17 [warning  ] rate_limit_exceeded            [src.middleware.rate_limiter] client_id=127.0.0.1 path=/api/v1/classify\n2026-03-17 16:10:17 [warning  ] rate_limit_exceeded            [src.middleware.rate_limiter] client_id=127.0.0.1 path=/api/v1/classify\n2026-03-17 16:10:17 [warning  ] rate_limit_exceeded            [src.middleware.rate_limiter] client_id=127.0.0.1 path=/api/v1/classify\n2026-03-17 16:10:17 [warning  ] rate_limit_exceeded            [src.middleware.rate_limiter] client_id=127.0.0.1 path=/api/v1/classify\n2026-03-17 16:10:17 [warning  ] rate_limit_exceeded            [src.middleware.rate_limiter] client_id=127.0.0.1 path=/api/v1/classify\n2026-03-17 16:10:17 [warning  ] rate_limit_exceeded            [src.middleware.rate_limiter] client_id=127.0.0.1 path=/api/v1/classify\n2026-03-17 16:10:17 [warning  ] rate_limit_exceeded            [src.middleware.rate_limiter] client_id=127.0.0.1 path=/api/v1/classify\n2026-03-17 16:10:17 [warning  ] rate_limit_exceeded            [src.middleware.rate_limiter] client_id=127.0.0.1 path=/api/v1/classify\n2026-03-17 16:10:17 [warning  ] rate_limit_exceeded            [src.middleware.rate_limiter] client_id=127.0.0.1 path=/api/v1/classify\n2026-03-17 16:10:17 [warning  ] rate_limit_exceeded            [src.middleware.rate_limiter] client_id=127.0.0.1 path=/api/v1/classify\n2026-03-17 16:10:17 [warning  ] rate_limit_exceeded            [src.middleware.rate_limiter] client_id=127.0.0.1 path=/api/v1/classify\n2026-03-17 16:10:17 [warning  ] rate_limit_exceeded            [src.middleware.rate_limiter] client_id=127.0.0.1 path=/api/v1/classify\n2026-03-17 16:10:17 [warning  ] rate_limit_exceeded            [src.middleware.rate_limiter] client_id=127.0.0.1 path=/api/v1/classify\n2026-03-17 16:10:17 [error    ] unhandled_exception            [src.app] exc_msg=&amp;#x27;InferenceEngine not initialized&amp;#x27; exc_type=RuntimeError\n&#34;}], &#34;tests/integration/test_concurrent_inference.py::test_concurrent_requests_faster_than_sequential&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Failed&#34;, &#34;testId&#34;: &#34;tests/integration/test_concurrent_inference.py::test_concurrent_requests_faster_than_sequential&#34;, &#34;duration&#34;: &#34;4 ms&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Failed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/integration/test_concurrent_inference.py::test_concurrent_requests_faster_than_sequential&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;4 ms&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;app_client = &amp;lt;httpx.AsyncClient object at 0x000001D87D6798D0&amp;gt;\n\n    @pytest.mark.asyncio\n    async def test_concurrent_requests_faster_than_sequential(app_client: AsyncClient) -&amp;gt; None:\n        &amp;quot;&amp;quot;&amp;quot;\u5e76\u53d1\uff1a\u5e76\u53d1\u6267\u884c\u5e94\u6bd4\u987a\u5e8f\u6267\u884c\u663e\u8457\u66f4\u5feb\uff08\u9a8c\u8bc1\u5e76\u53d1\u63a7\u5236\u5b9e\u9645\u751f\u6548\uff09\u3002\n    \n        \u987a\u5e8f\u6267\u884c 8 \u4e2a\u8bf7\u6c42\u7684\u603b\u65f6\u95f4\uff0c\u5e94\u8fdc\u5927\u4e8e\u5e76\u53d1\u6267\u884c 8 \u4e2a\u8bf7\u6c42\u7684\u65f6\u95f4\u3002\n        \u5982\u679c\u5e76\u53d1\u5b8c\u5168\u9000\u5316\u4e3a\u4e32\u884c\uff0c\u5219\u8bf4\u660e Semaphore \u6216 to_thread \u6709\u95ee\u9898\u3002\n        &amp;quot;&amp;quot;&amp;quot;\n        import time\n    \n        n_requests = 8\n        payload_list = [\n            {&amp;quot;text&amp;quot;: f&amp;quot;\u5e76\u53d1\u5bf9\u6bd4\u6d4b\u8bd5\u7b2c{i}\u6761\uff0c\u5305\u542b\u8db3\u591f\u591a\u7684\u4e2d\u6587\u5185\u5bb9\u7528\u4e8e\u6d4b\u8bd5&amp;quot;}\n            for i in range(n_requests)\n        ]\n    \n        # \u987a\u5e8f\u6267\u884c\n        seq_start = time.monotonic()\n        for payload in payload_list:\n            resp = await app_client.post(&amp;quot;/api/v1/classify&amp;quot;, json=payload)\n&amp;gt;           assert resp.status_code == 200\nE           assert 429 == 200\nE            +  where 429 = &amp;lt;Response [429 Too Many Requests]&amp;gt;.status_code\n\ntests\\integration\\test_concurrent_inference.py:190: AssertionError\n\n----------------------------- Captured stdout call -----------------------------\n2026-03-17 16:10:17 [warning  ] rate_limit_exceeded            [src.middleware.rate_limiter] client_id=127.0.0.1 path=/api/v1/classify\n&#34;}], &#34;tests/integration/test_inference_pipeline.py::test_full_classify_pipeline_returns_valid_result&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Failed&#34;, &#34;testId&#34;: &#34;tests/integration/test_inference_pipeline.py::test_full_classify_pipeline_returns_valid_result&#34;, &#34;duration&#34;: &#34;4 ms&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Failed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/integration/test_inference_pipeline.py::test_full_classify_pipeline_returns_valid_result&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;4 ms&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;app_client = &amp;lt;httpx.AsyncClient object at 0x000001D87DCAABD0&amp;gt;\n\n    @pytest.mark.asyncio\n    async def test_full_classify_pipeline_returns_valid_result(app_client: AsyncClient) -&amp;gt; None:\n        &amp;quot;&amp;quot;&amp;quot;\u7aef\u5230\u7aef\uff1aPOST /classify \u2192 \u63a8\u7406\u5f15\u64ce \u2192 \u6a21\u578b \u2192 \u8fd4\u56de\u6709\u6548\u5206\u7c7b\u7ed3\u679c\u3002&amp;quot;&amp;quot;&amp;quot;\n        response = await app_client.post(\n            &amp;quot;/api/v1/classify&amp;quot;,\n            json={&amp;quot;text&amp;quot;: &amp;quot;\u4eca\u5929\u7684\u8db3\u7403\u6bd4\u8d5b\u975e\u5e38\u7cbe\u5f69\uff0c\u4e3b\u961f3\u6bd41\u83b7\u80dc&amp;quot;},\n        )\n&amp;gt;       assert response.status_code == 200, f&amp;quot;\u671f\u671b 200\uff0c\u5b9e\u9645 {response.status_code}&amp;quot;\nE       AssertionError: \u671f\u671b 200\uff0c\u5b9e\u9645 429\nE       assert 429 == 200\nE        +  where 429 = &amp;lt;Response [429 Too Many Requests]&amp;gt;.status_code\n\ntests\\integration\\test_inference_pipeline.py:48: AssertionError\n\n----------------------------- Captured stdout call -----------------------------\n2026-03-17 16:10:17 [warning  ] rate_limit_exceeded            [src.middleware.rate_limiter] client_id=127.0.0.1 path=/api/v1/classify\n&#34;}], &#34;tests/integration/test_inference_pipeline.py::test_full_generate_pipeline_returns_valid_result&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Failed&#34;, &#34;testId&#34;: &#34;tests/integration/test_inference_pipeline.py::test_full_generate_pipeline_returns_valid_result&#34;, &#34;duration&#34;: &#34;3 ms&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Failed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/integration/test_inference_pipeline.py::test_full_generate_pipeline_returns_valid_result&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;3 ms&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;app_client = &amp;lt;httpx.AsyncClient object at 0x000001D87DCAABD0&amp;gt;\n\n    @pytest.mark.asyncio\n    async def test_full_generate_pipeline_returns_valid_result(app_client: AsyncClient) -&amp;gt; None:\n        &amp;quot;&amp;quot;&amp;quot;\u7aef\u5230\u7aef\uff1aPOST /generate \u2192 \u63a8\u7406\u5f15\u64ce \u2192 \u6a21\u578b \u2192 \u8fd4\u56de\u6709\u6548\u751f\u6210\u6587\u672c\u3002&amp;quot;&amp;quot;&amp;quot;\n        response = await app_client.post(\n            &amp;quot;/api/v1/generate&amp;quot;,\n            json={&amp;quot;prompt&amp;quot;: &amp;quot;\u4eba\u5de5\u667a\u80fd&amp;quot;, &amp;quot;max_length&amp;quot;: 50},\n        )\n&amp;gt;       assert response.status_code == 200, f&amp;quot;\u671f\u671b 200\uff0c\u5b9e\u9645 {response.status_code}&amp;quot;\nE       AssertionError: \u671f\u671b 200\uff0c\u5b9e\u9645 429\nE       assert 429 == 200\nE        +  where 429 = &amp;lt;Response [429 Too Many Requests]&amp;gt;.status_code\n\ntests\\integration\\test_inference_pipeline.py:66: AssertionError\n\n----------------------------- Captured stdout call -----------------------------\n2026-03-17 16:10:17 [warning  ] rate_limit_exceeded            [src.middleware.rate_limiter] client_id=127.0.0.1 path=/api/v1/generate\n&#34;}], &#34;tests/integration/test_inference_pipeline.py::test_classify_different_texts_return_different_labels&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Failed&#34;, &#34;testId&#34;: &#34;tests/integration/test_inference_pipeline.py::test_classify_different_texts_return_different_labels&#34;, &#34;duration&#34;: &#34;5 ms&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Failed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/integration/test_inference_pipeline.py::test_classify_different_texts_return_different_labels&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;5 ms&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;app_client = &amp;lt;httpx.AsyncClient object at 0x000001D87DCAABD0&amp;gt;\n\n    @pytest.mark.asyncio\n    async def test_classify_different_texts_return_different_labels(app_client: AsyncClient) -&amp;gt; None:\n        &amp;quot;&amp;quot;&amp;quot;\u94fe\u8def\uff1a\u4e0d\u540c\u9886\u57df\u6587\u672c\u5e94\u80fd\u88ab\u6b63\u786e\u5206\u7c7b\u5230\u4e0d\u540c\u6807\u7b7e\uff08\u9a8c\u8bc1\u6a21\u578b\u5b9e\u9645\u5de5\u4f5c\uff0c\u975e\u968f\u673a\u8f93\u51fa\uff09\u3002&amp;quot;&amp;quot;&amp;quot;\n        sports_text = &amp;quot;NBA\u603b\u51b3\u8d5b\u6e56\u4eba\u961f\u4ee54\u6bd42\u8d62\u5f97\u51a0\u519b&amp;quot;\n        tech_text = &amp;quot;\u82f9\u679c\u53d1\u5e03\u65b0\u4e00\u4ee3M3\u82af\u7247\u6027\u80fd\u5927\u5e45\u63d0\u5347&amp;quot;\n    \n        resp1 = await app_client.post(&amp;quot;/api/v1/classify&amp;quot;, json={&amp;quot;text&amp;quot;: sports_text})\n        resp2 = await app_client.post(&amp;quot;/api/v1/classify&amp;quot;, json={&amp;quot;text&amp;quot;: tech_text})\n    \n&amp;gt;       assert resp1.status_code == 200\nE       assert 429 == 200\nE        +  where 429 = &amp;lt;Response [429 Too Many Requests]&amp;gt;.status_code\n\ntests\\integration\\test_inference_pipeline.py:84: AssertionError\n\n----------------------------- Captured stdout call -----------------------------\n2026-03-17 16:10:17 [warning  ] rate_limit_exceeded            [src.middleware.rate_limiter] client_id=127.0.0.1 path=/api/v1/classify\n2026-03-17 16:10:17 [warning  ] rate_limit_exceeded            [src.middleware.rate_limiter] client_id=127.0.0.1 path=/api/v1/classify\n&#34;}], &#34;tests/integration/test_inference_pipeline.py::test_repeated_request_latency_is_reasonable&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Failed&#34;, &#34;testId&#34;: &#34;tests/integration/test_inference_pipeline.py::test_repeated_request_latency_is_reasonable&#34;, &#34;duration&#34;: &#34;5 ms&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Failed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/integration/test_inference_pipeline.py::test_repeated_request_latency_is_reasonable&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;5 ms&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;app_client = &amp;lt;httpx.AsyncClient object at 0x000001D87DCAABD0&amp;gt;\n\n    @pytest.mark.asyncio\n    async def test_repeated_request_latency_is_reasonable(app_client: AsyncClient) -&amp;gt; None:\n        &amp;quot;&amp;quot;&amp;quot;\u94fe\u8def\uff1a\u76f8\u540c\u8bf7\u6c42\u8fde\u7eed\u53d1\u4e24\u6b21\uff0c\u9a8c\u8bc1\u5ef6\u8fdf\u5747\u5728\u5408\u7406\u8303\u56f4\uff08\u7f13\u5b58\u82e5\u542f\u7528\u5219\u7b2c\u4e8c\u6b21\u66f4\u5feb\uff09\u3002\n    \n        \u8bbe\u8ba1\u8bf4\u660e\uff1a\n          \u6b64\u6d4b\u8bd5\u4e0d\u5f3a\u5236\u8981\u6c42&amp;quot;\u7b2c\u4e8c\u6b21\u4e00\u5b9a\u6bd4\u7b2c\u4e00\u6b21\u5feb50%&amp;quot;\uff0c\n          \u56e0\u4e3a InferenceEngine \u5f53\u524d\u7248\u672c\u672a\u96c6\u6210\u7f13\u5b58\u5c42\uff08\u7f13\u5b58\u5728 cache_layer.py \u4e2d\u72ec\u7acb\u5b58\u5728\uff0c\n          \u9700\u8981\u5728 engine \u4e2d\u663e\u5f0f\u8c03\u7528\u624d\u751f\u6548\uff09\u3002\n          \u82e5\u5c06\u6765\u96c6\u6210\u7f13\u5b58\uff0c\u53ef\u4ee5\u53d6\u6d88\u6ce8\u91ca\u4e0b\u9762\u7684\u4e25\u683c\u65ad\u8a00\u3002\n        &amp;quot;&amp;quot;&amp;quot;\n        payload = {&amp;quot;text&amp;quot;: &amp;quot;\u65b0\u6b3e\u82af\u7247\u91c7\u75283nm\u5de5\u827a\u5236\u7a0b&amp;quot;}\n    \n        start1 = time.monotonic()\n        resp1 = await app_client.post(&amp;quot;/api/v1/classify&amp;quot;, json=payload)\n        elapsed1 = (time.monotonic() - start1) * 1000\n    \n        start2 = time.monotonic()\n        resp2 = await app_client.post(&amp;quot;/api/v1/classify&amp;quot;, json=payload)\n        elapsed2 = (time.monotonic() - start2) * 1000\n    \n&amp;gt;       assert resp1.status_code == 200, &amp;quot;\u7b2c\u4e00\u6b21\u8bf7\u6c42\u5e94\u6210\u529f&amp;quot;\nE       AssertionError: \u7b2c\u4e00\u6b21\u8bf7\u6c42\u5e94\u6210\u529f\nE       assert 429 == 200\nE        +  where 429 = &amp;lt;Response [429 Too Many Requests]&amp;gt;.status_code\n\ntests\\integration\\test_inference_pipeline.py:118: AssertionError\n\n----------------------------- Captured stdout call -----------------------------\n2026-03-17 16:10:17 [warning  ] rate_limit_exceeded            [src.middleware.rate_limiter] client_id=127.0.0.1 path=/api/v1/classify\n2026-03-17 16:10:17 [warning  ] rate_limit_exceeded            [src.middleware.rate_limiter] client_id=127.0.0.1 path=/api/v1/classify\n&#34;}], &#34;tests/integration/test_inference_pipeline.py::test_metrics_counter_increments_after_request&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Failed&#34;, &#34;testId&#34;: &#34;tests/integration/test_inference_pipeline.py::test_metrics_counter_increments_after_request&#34;, &#34;duration&#34;: &#34;3 ms&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Failed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/integration/test_inference_pipeline.py::test_metrics_counter_increments_after_request&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;3 ms&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;app_client = &amp;lt;httpx.AsyncClient object at 0x000001D87DCAABD0&amp;gt;\n\n    @pytest.mark.asyncio\n    async def test_metrics_counter_increments_after_request(app_client: AsyncClient) -&amp;gt; None:\n        &amp;quot;&amp;quot;&amp;quot;\u94fe\u8def\uff1a\u53d1\u8d77\u8bf7\u6c42\u540e\uff0c/metrics \u7684 engine.total_requests \u5e94\u9012\u589e\u3002&amp;quot;&amp;quot;&amp;quot;\n        # \u8bb0\u5f55\u8bf7\u6c42\u524d\u7684\u8ba1\u6570\n        before = await app_client.get(&amp;quot;/api/v1/metrics&amp;quot;)\n&amp;gt;       assert before.status_code == 200\nE       assert 429 == 200\nE        +  where 429 = &amp;lt;Response [429 Too Many Requests]&amp;gt;.status_code\n\ntests\\integration\\test_inference_pipeline.py:140: AssertionError\n\n----------------------------- Captured stdout call -----------------------------\n2026-03-17 16:10:17 [warning  ] rate_limit_exceeded            [src.middleware.rate_limiter] client_id=127.0.0.1 path=/api/v1/metrics\n&#34;}], &#34;tests/integration/test_inference_pipeline.py::test_metrics_success_count_increments_after_valid_request&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Failed&#34;, &#34;testId&#34;: &#34;tests/integration/test_inference_pipeline.py::test_metrics_success_count_increments_after_valid_request&#34;, &#34;duration&#34;: &#34;4 ms&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Failed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/integration/test_inference_pipeline.py::test_metrics_success_count_increments_after_valid_request&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;4 ms&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;app_client = &amp;lt;httpx.AsyncClient object at 0x000001D87DCAABD0&amp;gt;\n\n    @pytest.mark.asyncio\n    async def test_metrics_success_count_increments_after_valid_request(app_client: AsyncClient) -&amp;gt; None:\n        &amp;quot;&amp;quot;&amp;quot;\u94fe\u8def\uff1a\u6210\u529f\u8bf7\u6c42\u540e\uff0cengine.success_count \u5e94\u9012\u589e\u3002&amp;quot;&amp;quot;&amp;quot;\n        before_metrics = (await app_client.get(&amp;quot;/api/v1/metrics&amp;quot;)).json()\n&amp;gt;       success_before = before_metrics[&amp;quot;engine&amp;quot;][&amp;quot;success_count&amp;quot;]\n                         ^^^^^^^^^^^^^^^^^^^^^^^^\nE       KeyError: &amp;#x27;engine&amp;#x27;\n\ntests\\integration\\test_inference_pipeline.py:165: KeyError\n\n----------------------------- Captured stdout call -----------------------------\n2026-03-17 16:10:17 [warning  ] rate_limit_exceeded            [src.middleware.rate_limiter] client_id=127.0.0.1 path=/api/v1/metrics\n&#34;}]}, &#34;renderCollapsed&#34;: [&#34;passed&#34;], &#34;initialSort&#34;: &#34;result&#34;, &#34;title&#34;: &#34;integration_report.html&#34;}"></div>
+    <script>
+      (function(){function r(e,n,t){function o(i,f){if(!n[i]){if(!e[i]){var c="function"==typeof require&&require;if(!f&&c)return c(i,!0);if(u)return u(i,!0);var a=new Error("Cannot find module '"+i+"'");throw a.code="MODULE_NOT_FOUND",a}var p=n[i]={exports:{}};e[i][0].call(p.exports,function(r){var n=e[i][1][r];return o(n||r)},p,p.exports,r,e,n,t)}return n[i].exports}for(var u="function"==typeof require&&require,i=0;i<t.length;i++)o(t[i]);return o}return r})()({1:[function(require,module,exports){
+const { getCollapsedCategory, setCollapsedIds } = require('./storage.js')
+
+class DataManager {
+    setManager(data) {
+        const collapsedCategories = [...getCollapsedCategory(data.renderCollapsed)]
+        const collapsedIds = []
+        const tests = Object.values(data.tests).flat().map((test, index) => {
+            const collapsed = collapsedCategories.includes(test.result.toLowerCase())
+            const id = `test_${index}`
+            if (collapsed) {
+                collapsedIds.push(id)
+            }
+            return {
+                ...test,
+                id,
+                collapsed,
+            }
+        })
+        const dataBlob = { ...data, tests }
+        this.data = { ...dataBlob }
+        this.renderData = { ...dataBlob }
+        setCollapsedIds(collapsedIds)
+    }
+
+    get allData() {
+        return { ...this.data }
+    }
+
+    resetRender() {
+        this.renderData = { ...this.data }
+    }
+
+    setRender(data) {
+        this.renderData.tests = [...data]
+    }
+
+    toggleCollapsedItem(id) {
+        this.renderData.tests = this.renderData.tests.map((test) =>
+            test.id === id ? { ...test, collapsed: !test.collapsed } : test,
+        )
+    }
+
+    set allCollapsed(collapsed) {
+        this.renderData = { ...this.renderData, tests: [...this.renderData.tests.map((test) => (
+            { ...test, collapsed }
+        ))] }
+    }
+
+    get testSubset() {
+        return [...this.renderData.tests]
+    }
+
+    get environment() {
+        return this.renderData.environment
+    }
+
+    get initialSort() {
+        return this.data.initialSort
+    }
+}
+
+module.exports = {
+    manager: new DataManager(),
+}
+
+},{"./storage.js":8}],2:[function(require,module,exports){
+const mediaViewer = require('./mediaviewer.js')
+const templateEnvRow = document.getElementById('template_environment_row')
+const templateResult = document.getElementById('template_results-table__tbody')
+
+function htmlToElements(html) {
+    const temp = document.createElement('template')
+    temp.innerHTML = html
+    return temp.content.childNodes
+}
+
+const find = (selector, elem) => {
+    if (!elem) {
+        elem = document
+    }
+    return elem.querySelector(selector)
+}
+
+const findAll = (selector, elem) => {
+    if (!elem) {
+        elem = document
+    }
+    return [...elem.querySelectorAll(selector)]
+}
+
+const dom = {
+    getStaticRow: (key, value) => {
+        const envRow = templateEnvRow.content.cloneNode(true)
+        const isObj = typeof value === 'object' && value !== null
+        const values = isObj ? Object.keys(value).map((k) => `${k}: ${value[k]}`) : null
+
+        const valuesElement = htmlToElements(
+            values ? `<ul>${values.map((val) => `<li>${val}</li>`).join('')}<ul>` : `<div>${value}</div>`)[0]
+        const td = findAll('td', envRow)
+        td[0].textContent = key
+        td[1].appendChild(valuesElement)
+
+        return envRow
+    },
+    getResultTBody: ({ testId, id, log, extras, resultsTableRow, tableHtml, result, collapsed }) => {
+        const resultBody = templateResult.content.cloneNode(true)
+        resultBody.querySelector('tbody').classList.add(result.toLowerCase())
+        resultBody.querySelector('tbody').id = testId
+        resultBody.querySelector('.collapsible').dataset.id = id
+
+        resultsTableRow.forEach((html) => {
+            const t = document.createElement('template')
+            t.innerHTML = html
+            resultBody.querySelector('.collapsible').appendChild(t.content)
+        })
+
+        if (log) {
+            // Wrap lines starting with "E" with span.error to color those lines red
+            const wrappedLog = log.replace(/^E.*$/gm, (match) => `<span class="error">${match}</span>`)
+            resultBody.querySelector('.log').innerHTML = wrappedLog
+        } else {
+            resultBody.querySelector('.log').remove()
+        }
+
+        if (collapsed) {
+            resultBody.querySelector('.collapsible > .col-result')?.classList.add('collapsed')
+            resultBody.querySelector('.extras-row').classList.add('hidden')
+        } else {
+            resultBody.querySelector('.collapsible > .col-result')?.classList.remove('collapsed')
+        }
+
+        const media = []
+        extras?.forEach(({ name, format_type, content }) => {
+            if (['image', 'video'].includes(format_type)) {
+                media.push({ path: content, name, format_type })
+            }
+
+            if (format_type === 'html') {
+                resultBody.querySelector('.extraHTML').insertAdjacentHTML('beforeend', `<div>${content}</div>`)
+            }
+        })
+        mediaViewer.setup(resultBody, media)
+
+        // Add custom html from the pytest_html_results_table_html hook
+        tableHtml?.forEach((item) => {
+            resultBody.querySelector('td[class="extra"]').insertAdjacentHTML('beforeend', item)
+        })
+
+        return resultBody
+    },
+}
+
+module.exports = {
+    dom,
+    htmlToElements,
+    find,
+    findAll,
+}
+
+},{"./mediaviewer.js":6}],3:[function(require,module,exports){
+const { manager } = require('./datamanager.js')
+const { doSort } = require('./sort.js')
+const storageModule = require('./storage.js')
+
+const getFilteredSubSet = (filter) =>
+    manager.allData.tests.filter(({ result }) => filter.includes(result.toLowerCase()))
+
+const doInitFilter = () => {
+    const currentFilter = storageModule.getVisible()
+    const filteredSubset = getFilteredSubSet(currentFilter)
+    manager.setRender(filteredSubset)
+}
+
+const doFilter = (type, show) => {
+    if (show) {
+        storageModule.showCategory(type)
+    } else {
+        storageModule.hideCategory(type)
+    }
+
+    const currentFilter = storageModule.getVisible()
+    const filteredSubset = getFilteredSubSet(currentFilter)
+    manager.setRender(filteredSubset)
+
+    const sortColumn = storageModule.getSort()
+    doSort(sortColumn, true)
+}
+
+module.exports = {
+    doFilter,
+    doInitFilter,
+}
+
+},{"./datamanager.js":1,"./sort.js":7,"./storage.js":8}],4:[function(require,module,exports){
+const { redraw, bindEvents, renderStatic } = require('./main.js')
+const { doInitFilter } = require('./filter.js')
+const { doInitSort } = require('./sort.js')
+const { manager } = require('./datamanager.js')
+const data = JSON.parse(document.getElementById('data-container').dataset.jsonblob)
+
+function init() {
+    manager.setManager(data)
+    doInitFilter()
+    doInitSort()
+    renderStatic()
+    redraw()
+    bindEvents()
+}
+
+init()
+
+},{"./datamanager.js":1,"./filter.js":3,"./main.js":5,"./sort.js":7}],5:[function(require,module,exports){
+const { dom, find, findAll } = require('./dom.js')
+const { manager } = require('./datamanager.js')
+const { doSort } = require('./sort.js')
+const { doFilter } = require('./filter.js')
+const {
+    getVisible,
+    getCollapsedIds,
+    setCollapsedIds,
+    getSort,
+    getSortDirection,
+    possibleFilters,
+} = require('./storage.js')
+
+const removeChildren = (node) => {
+    while (node.firstChild) {
+        node.removeChild(node.firstChild)
+    }
+}
+
+const renderStatic = () => {
+    const renderEnvironmentTable = () => {
+        const environment = manager.environment
+        const rows = Object.keys(environment).map((key) => dom.getStaticRow(key, environment[key]))
+        const table = document.getElementById('environment')
+        removeChildren(table)
+        rows.forEach((row) => table.appendChild(row))
+    }
+    renderEnvironmentTable()
+}
+
+const addItemToggleListener = (elem) => {
+    elem.addEventListener('click', ({ target }) => {
+        const id = target.parentElement.dataset.id
+        manager.toggleCollapsedItem(id)
+
+        const collapsedIds = getCollapsedIds()
+        if (collapsedIds.includes(id)) {
+            const updated = collapsedIds.filter((item) => item !== id)
+            setCollapsedIds(updated)
+        } else {
+            collapsedIds.push(id)
+            setCollapsedIds(collapsedIds)
+        }
+        redraw()
+    })
+}
+
+const renderContent = (tests) => {
+    const sortAttr = getSort(manager.initialSort)
+    const sortAsc = JSON.parse(getSortDirection())
+    const rows = tests.map(dom.getResultTBody)
+    const table = document.getElementById('results-table')
+    const tableHeader = document.getElementById('results-table-head')
+
+    const newTable = document.createElement('table')
+    newTable.id = 'results-table'
+
+    // remove all sorting classes and set the relevant
+    findAll('.sortable', tableHeader).forEach((elem) => elem.classList.remove('asc', 'desc'))
+    tableHeader.querySelector(`.sortable[data-column-type="${sortAttr}"]`)?.classList.add(sortAsc ? 'desc' : 'asc')
+    newTable.appendChild(tableHeader)
+
+    if (!rows.length) {
+        const emptyTable = document.getElementById('template_results-table__body--empty').content.cloneNode(true)
+        newTable.appendChild(emptyTable)
+    } else {
+        rows.forEach((row) => {
+            if (!!row) {
+                findAll('.collapsible td:not(.col-links', row).forEach(addItemToggleListener)
+                find('.logexpander', row).addEventListener('click',
+                    (evt) => evt.target.parentNode.classList.toggle('expanded'),
+                )
+                newTable.appendChild(row)
+            }
+        })
+    }
+
+    table.replaceWith(newTable)
+}
+
+const renderDerived = () => {
+    const currentFilter = getVisible()
+    possibleFilters.forEach((result) => {
+        const input = document.querySelector(`input[data-test-result="${result}"]`)
+        input.checked = currentFilter.includes(result)
+    })
+}
+
+const bindEvents = () => {
+    const filterColumn = (evt) => {
+        const { target: element } = evt
+        const { testResult } = element.dataset
+
+        doFilter(testResult, element.checked)
+        const collapsedIds = getCollapsedIds()
+        const updated = manager.renderData.tests.map((test) => {
+            return {
+                ...test,
+                collapsed: collapsedIds.includes(test.id),
+            }
+        })
+        manager.setRender(updated)
+        redraw()
+    }
+
+    const header = document.getElementById('environment-header')
+    header.addEventListener('click', () => {
+        const table = document.getElementById('environment')
+        table.classList.toggle('hidden')
+        header.classList.toggle('collapsed')
+    })
+
+    findAll('input[name="filter_checkbox"]').forEach((elem) => {
+        elem.addEventListener('click', filterColumn)
+    })
+
+    findAll('.sortable').forEach((elem) => {
+        elem.addEventListener('click', (evt) => {
+            const { target: element } = evt
+            const { columnType } = element.dataset
+            doSort(columnType)
+            redraw()
+        })
+    })
+
+    document.getElementById('show_all_details').addEventListener('click', () => {
+        manager.allCollapsed = false
+        setCollapsedIds([])
+        redraw()
+    })
+    document.getElementById('hide_all_details').addEventListener('click', () => {
+        manager.allCollapsed = true
+        const allIds = manager.renderData.tests.map((test) => test.id)
+        setCollapsedIds(allIds)
+        redraw()
+    })
+}
+
+const redraw = () => {
+    const { testSubset } = manager
+
+    renderContent(testSubset)
+    renderDerived()
+}
+
+module.exports = {
+    redraw,
+    bindEvents,
+    renderStatic,
+}
+
+},{"./datamanager.js":1,"./dom.js":2,"./filter.js":3,"./sort.js":7,"./storage.js":8}],6:[function(require,module,exports){
+class MediaViewer {
+    constructor(assets) {
+        this.assets = assets
+        this.index = 0
+    }
+
+    nextActive() {
+        this.index = this.index === this.assets.length - 1 ? 0 : this.index + 1
+        return [this.activeFile, this.index]
+    }
+
+    prevActive() {
+        this.index = this.index === 0 ? this.assets.length - 1 : this.index -1
+        return [this.activeFile, this.index]
+    }
+
+    get currentIndex() {
+        return this.index
+    }
+
+    get activeFile() {
+        return this.assets[this.index]
+    }
+}
+
+
+const setup = (resultBody, assets) => {
+    if (!assets.length) {
+        resultBody.querySelector('.media').classList.add('hidden')
+        return
+    }
+
+    const mediaViewer = new MediaViewer(assets)
+    const container = resultBody.querySelector('.media-container')
+    const leftArrow = resultBody.querySelector('.media-container__nav--left')
+    const rightArrow = resultBody.querySelector('.media-container__nav--right')
+    const mediaName = resultBody.querySelector('.media__name')
+    const counter = resultBody.querySelector('.media__counter')
+    const imageEl = resultBody.querySelector('img')
+    const sourceEl = resultBody.querySelector('source')
+    const videoEl = resultBody.querySelector('video')
+
+    const setImg = (media, index) => {
+        if (media?.format_type === 'image') {
+            imageEl.src = media.path
+
+            imageEl.classList.remove('hidden')
+            videoEl.classList.add('hidden')
+        } else if (media?.format_type === 'video') {
+            sourceEl.src = media.path
+
+            videoEl.classList.remove('hidden')
+            imageEl.classList.add('hidden')
+        }
+
+        mediaName.innerText = media?.name
+        counter.innerText = `${index + 1} / ${assets.length}`
+    }
+    setImg(mediaViewer.activeFile, mediaViewer.currentIndex)
+
+    const moveLeft = () => {
+        const [media, index] = mediaViewer.prevActive()
+        setImg(media, index)
+    }
+    const doRight = () => {
+        const [media, index] = mediaViewer.nextActive()
+        setImg(media, index)
+    }
+    const openImg = () => {
+        window.open(mediaViewer.activeFile.path, '_blank')
+    }
+    if (assets.length === 1) {
+        container.classList.add('media-container--fullscreen')
+    } else {
+        leftArrow.addEventListener('click', moveLeft)
+        rightArrow.addEventListener('click', doRight)
+    }
+    imageEl.addEventListener('click', openImg)
+}
+
+module.exports = {
+    setup,
+}
+
+},{}],7:[function(require,module,exports){
+const { manager } = require('./datamanager.js')
+const storageModule = require('./storage.js')
+
+const genericSort = (list, key, ascending, customOrder) => {
+    let sorted
+    if (customOrder) {
+        sorted = list.sort((a, b) => {
+            const aValue = a.result.toLowerCase()
+            const bValue = b.result.toLowerCase()
+
+            const aIndex = customOrder.findIndex((item) => item.toLowerCase() === aValue)
+            const bIndex = customOrder.findIndex((item) => item.toLowerCase() === bValue)
+
+            // Compare the indices to determine the sort order
+            return aIndex - bIndex
+        })
+    } else {
+        sorted = list.sort((a, b) => a[key] === b[key] ? 0 : a[key] > b[key] ? 1 : -1)
+    }
+
+    if (ascending) {
+        sorted.reverse()
+    }
+    return sorted
+}
+
+const durationSort = (list, ascending) => {
+    const parseDuration = (duration) => {
+        if (duration.includes(':')) {
+            // If it's in the format "HH:mm:ss"
+            const [hours, minutes, seconds] = duration.split(':').map(Number)
+            return (hours * 3600 + minutes * 60 + seconds) * 1000
+        } else {
+            // If it's in the format "nnn ms"
+            return parseInt(duration)
+        }
+    }
+    const sorted = list.sort((a, b) => parseDuration(a['duration']) - parseDuration(b['duration']))
+    if (ascending) {
+        sorted.reverse()
+    }
+    return sorted
+}
+
+const doInitSort = () => {
+    const type = storageModule.getSort(manager.initialSort)
+    const ascending = storageModule.getSortDirection()
+    const list = manager.testSubset
+    const initialOrder = ['Error', 'Failed', 'Rerun', 'XFailed', 'XPassed', 'Skipped', 'Passed']
+
+    storageModule.setSort(type)
+    storageModule.setSortDirection(ascending)
+
+    if (type?.toLowerCase() === 'original') {
+        manager.setRender(list)
+    } else {
+        let sortedList
+        switch (type) {
+        case 'duration':
+            sortedList = durationSort(list, ascending)
+            break
+        case 'result':
+            sortedList = genericSort(list, type, ascending, initialOrder)
+            break
+        default:
+            sortedList = genericSort(list, type, ascending)
+            break
+        }
+        manager.setRender(sortedList)
+    }
+}
+
+const doSort = (type, skipDirection) => {
+    const newSortType = storageModule.getSort(manager.initialSort) !== type
+    const currentAsc = storageModule.getSortDirection()
+    let ascending
+    if (skipDirection) {
+        ascending = currentAsc
+    } else {
+        ascending = newSortType ? false : !currentAsc
+    }
+    storageModule.setSort(type)
+    storageModule.setSortDirection(ascending)
+
+    const list = manager.testSubset
+    const sortedList = type === 'duration' ? durationSort(list, ascending) : genericSort(list, type, ascending)
+    manager.setRender(sortedList)
+}
+
+module.exports = {
+    doInitSort,
+    doSort,
+}
+
+},{"./datamanager.js":1,"./storage.js":8}],8:[function(require,module,exports){
+const possibleFilters = [
+    'passed',
+    'skipped',
+    'failed',
+    'error',
+    'xfailed',
+    'xpassed',
+    'rerun',
+]
+
+const getVisible = () => {
+    const url = new URL(window.location.href)
+    const settings = new URLSearchParams(url.search).get('visible')
+    const lower = (item) => {
+        const lowerItem = item.toLowerCase()
+        if (possibleFilters.includes(lowerItem)) {
+            return lowerItem
+        }
+        return null
+    }
+    return settings === null ?
+        possibleFilters :
+        [...new Set(settings?.split(',').map(lower).filter((item) => item))]
+}
+
+const hideCategory = (categoryToHide) => {
+    const url = new URL(window.location.href)
+    const visibleParams = new URLSearchParams(url.search).get('visible')
+    const currentVisible = visibleParams ? visibleParams.split(',') : [...possibleFilters]
+    const settings = [...new Set(currentVisible)].filter((f) => f !== categoryToHide).join(',')
+
+    url.searchParams.set('visible', settings)
+    window.history.pushState({}, null, unescape(url.href))
+}
+
+const showCategory = (categoryToShow) => {
+    if (typeof window === 'undefined') {
+        return
+    }
+    const url = new URL(window.location.href)
+    const currentVisible = new URLSearchParams(url.search).get('visible')?.split(',').filter(Boolean) ||
+        [...possibleFilters]
+    const settings = [...new Set([categoryToShow, ...currentVisible])]
+    const noFilter = possibleFilters.length === settings.length || !settings.length
+
+    noFilter ? url.searchParams.delete('visible') : url.searchParams.set('visible', settings.join(','))
+    window.history.pushState({}, null, unescape(url.href))
+}
+
+const getSort = (initialSort) => {
+    const url = new URL(window.location.href)
+    let sort = new URLSearchParams(url.search).get('sort')
+    if (!sort) {
+        sort = initialSort || 'result'
+    }
+    return sort
+}
+
+const setSort = (type) => {
+    const url = new URL(window.location.href)
+    url.searchParams.set('sort', type)
+    window.history.pushState({}, null, unescape(url.href))
+}
+
+const getCollapsedCategory = (renderCollapsed) => {
+    let categories
+    if (typeof window !== 'undefined') {
+        const url = new URL(window.location.href)
+        const collapsedItems = new URLSearchParams(url.search).get('collapsed')
+        switch (true) {
+        case !renderCollapsed && collapsedItems === null:
+            categories = ['passed']
+            break
+        case collapsedItems?.length === 0 || /^["']{2}$/.test(collapsedItems):
+            categories = []
+            break
+        case /^all$/.test(collapsedItems) || collapsedItems === null && /^all$/.test(renderCollapsed):
+            categories = [...possibleFilters]
+            break
+        default:
+            categories = collapsedItems?.split(',').map((item) => item.toLowerCase()) || renderCollapsed
+            break
+        }
+    } else {
+        categories = []
+    }
+    return categories
+}
+
+const getSortDirection = () => JSON.parse(sessionStorage.getItem('sortAsc')) || false
+const setSortDirection = (ascending) => sessionStorage.setItem('sortAsc', ascending)
+
+const getCollapsedIds = () => JSON.parse(sessionStorage.getItem('collapsedIds')) || []
+const setCollapsedIds = (list) => sessionStorage.setItem('collapsedIds', JSON.stringify(list))
+
+module.exports = {
+    getVisible,
+    hideCategory,
+    showCategory,
+    getCollapsedIds,
+    setCollapsedIds,
+    getSort,
+    setSort,
+    getSortDirection,
+    setSortDirection,
+    getCollapsedCategory,
+    possibleFilters,
+}
+
+},{}]},{},[4]);
+    </script>
+  </footer>
+  </body>
+</html>

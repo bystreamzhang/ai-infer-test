@@ -1,0 +1,213 @@
+F:\code\ai-infer-test>F:\anaconda3\Scripts\activate.bat && conda activate ai-infer-test
+
+(ai-infer-test) F:\code\ai-infer-test>pytest tests/unit/ -v
+===================================== test session starts =====================================
+platform win32 -- Python 3.11.15, pytest-9.0.2, pluggy-1.6.0 -- C:\Users\ZNBC\.conda\envs\ai-infer-test\python.exe
+cachedir: .pytest_cache
+hypothesis profile 'default'
+benchmark: 5.2.3 (defaults: timer=time.perf_counter disable_gc=False min_rounds=5 min_time=0.000005 max_time=1.0 calibration_precision=10 warmup=False warmup_iterations=100000)
+metadata: {'Python': '3.11.15', 'Platform': 'Windows-10-10.0.26200-SP0', 'Packages': {'pytest': '9.0.2', 'pluggy': '1.6.0'}, 'Plugins': {'anyio': '4.12.1', 'hypothesis': '6.151.9', 'locust': '2.43.3', 'asyncio': '1.3.0', 'benchmark': '5.2.3', 'cov': '7.0.0', 'html': '4.2.0', 'metadata': '3.1.1'}, 'JAVA_HOME': 'F:\\java8\\jdk'}
+rootdir: F:\code\ai-infer-test
+plugins: anyio-4.12.1, hypothesis-6.151.9, locust-2.43.3, asyncio-1.3.0, benchmark-5.2.3, cov-7.0.0, html-4.2.0, metadata-3.1.1
+asyncio: mode=Mode.STRICT, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function
+collected 119 items                                                                            
+
+tests/unit/test_cache_layer.py::test_cache_put_and_get_returns_value PASSED              [  0%]
+tests/unit/test_cache_layer.py::test_cache_miss_returns_none PASSED                      [  1%]
+tests/unit/test_cache_layer.py::test_cache_put_overwrites_existing_value PASSED          [  2%]
+tests/unit/test_cache_layer.py::test_cache_supports_various_value_types PASSED           [  3%]
+tests/unit/test_cache_layer.py::test_cache_lru_evicts_oldest_when_full PASSED            [  4%] 
+tests/unit/test_cache_layer.py::test_cache_lru_access_refreshes_order PASSED             [  5%] 
+tests/unit/test_cache_layer.py::test_cache_eviction_count_tracked PASSED                 [  5%] 
+tests/unit/test_cache_layer.py::test_cache_ttl_expiry_returns_none PASSED                [  6%]
+tests/unit/test_cache_layer.py::test_cache_ttl_not_expired_still_accessible PASSED       [  7%] 
+tests/unit/test_cache_layer.py::test_cache_invalidate_removes_key PASSED                 [  8%] 
+tests/unit/test_cache_layer.py::test_cache_invalidate_nonexistent_returns_false PASSED   [  9%] 
+tests/unit/test_cache_layer.py::test_cache_stats_initial_state PASSED                    [ 10%] 
+tests/unit/test_cache_layer.py::test_cache_stats_hit_rate_calculation PASSED             [ 10%] 
+tests/unit/test_cache_layer.py::test_cache_stats_no_zero_division_with_no_requests PASSED [ 11%]
+tests/unit/test_cache_layer.py::test_cache_stats_current_size_updates PASSED             [ 12%] 
+tests/unit/test_cache_layer.py::test_cache_thread_safety_no_crash PASSED                 [ 13%]
+tests/unit/test_metrics.py::TestCounter::test_counter_initial_value_is_zero PASSED       [ 14%] 
+tests/unit/test_metrics.py::TestCounter::test_counter_inc_default_increments_by_one PASSED [ 15%]
+tests/unit/test_metrics.py::TestCounter::test_counter_inc_by_amount PASSED               [ 15%] 
+tests/unit/test_metrics.py::TestCounter::test_counter_inc_zero_is_allowed PASSED         [ 16%] 
+tests/unit/test_metrics.py::TestCounter::test_counter_inc_negative_raises PASSED         [ 17%] 
+tests/unit/test_metrics.py::TestCounter::test_counter_accumulates_multiple_incs PASSED   [ 18%] 
+tests/unit/test_metrics.py::TestCounter::test_counter_snapshot_structure PASSED          [ 19%] 
+tests/unit/test_metrics.py::TestCounter::test_counter_thread_safety PASSED               [ 20%]
+tests/unit/test_metrics.py::TestGauge::test_gauge_initial_value_is_zero PASSED           [ 21%] 
+tests/unit/test_metrics.py::TestGauge::test_gauge_set PASSED                             [ 21%] 
+tests/unit/test_metrics.py::TestGauge::test_gauge_set_can_overwrite PASSED               [ 22%] 
+tests/unit/test_metrics.py::TestGauge::test_gauge_inc PASSED                             [ 23%] 
+tests/unit/test_metrics.py::TestGauge::test_gauge_dec PASSED                             [ 24%] 
+tests/unit/test_metrics.py::TestGauge::test_gauge_can_go_negative PASSED                 [ 25%] 
+tests/unit/test_metrics.py::TestGauge::test_gauge_snapshot_structure PASSED              [ 26%] 
+tests/unit/test_metrics.py::TestHistogram::test_histogram_empty_percentile_returns_zero PASSED [ 26%]
+tests/unit/test_metrics.py::TestHistogram::test_histogram_empty_stats_all_zero PASSED    [ 27%]
+tests/unit/test_metrics.py::TestHistogram::test_histogram_single_value_all_percentiles_equal[0] PASSED [ 28%]
+tests/unit/test_metrics.py::TestHistogram::test_histogram_single_value_all_percentiles_equal[50]
+ PASSED [ 29%]
+tests/unit/test_metrics.py::TestHistogram::test_histogram_single_value_all_percentiles_equal[95]
+ PASSED [ 30%]
+tests/unit/test_metrics.py::TestHistogram::test_histogram_single_value_all_percentiles_equal[99]
+ PASSED [ 31%]
+tests/unit/test_metrics.py::TestHistogram::test_histogram_single_value_all_percentiles_equal[100] PASSED [ 31%]
+tests/unit/test_metrics.py::TestHistogram::test_histogram_p50_with_known_data PASSED     [ 32%] 
+tests/unit/test_metrics.py::TestHistogram::test_histogram_p100_does_not_raise PASSED     [ 33%] 
+tests/unit/test_metrics.py::TestHistogram::test_histogram_p0_returns_minimum PASSED      [ 34%] 
+tests/unit/test_metrics.py::TestHistogram::test_histogram_stats_structure PASSED         [ 35%] 
+tests/unit/test_metrics.py::TestHistogram::test_histogram_snapshot_structure PASSED      [ 36%] 
+tests/unit/test_metrics.py::TestHistogram::test_histogram_thread_safety PASSED           [ 36%]
+tests/unit/test_metrics.py::TestMetricsRegistry::test_registry_counter_creates_new PASSED [ 37%]
+tests/unit/test_metrics.py::TestMetricsRegistry::test_registry_get_or_create_returns_same_instance PASSED [ 38%]
+tests/unit/test_metrics.py::TestMetricsRegistry::test_registry_snapshot_contains_all_metrics PASSED [ 39%]
+tests/unit/test_metrics.py::TestMetricsRegistry::test_registry_snapshot_reflects_current_values PASSED [ 40%]
+tests/unit/test_metrics.py::TestMetricsRegistry::test_registry_empty_snapshot_is_empty_dict PASSED [ 41%]
+tests/unit/test_metrics.py::TestMetricsRegistry::test_registry_different_types_same_name_returns_wrong_type PASSED [ 42%]
+tests/unit/test_model_registry.py::test_register_and_get_returns_same_instance PASSED    [ 42%]
+tests/unit/test_model_registry.py::test_register_and_get_latest_returns_same_instance PASSED [ 43%]
+tests/unit/test_model_registry.py::test_get_nonexistent_model_raises_error PASSED        [ 44%] 
+tests/unit/test_model_registry.py::test_get_nonexistent_version_raises_error PASSED      [ 45%] 
+tests/unit/test_model_registry.py::test_latest_points_to_last_registered_version PASSED  [ 46%] 
+tests/unit/test_model_registry.py::test_older_versions_still_accessible_after_new_register PASSED [ 47%]
+tests/unit/test_model_registry.py::test_register_overwrite_existing_version PASSED       [ 47%] 
+tests/unit/test_model_registry.py::test_register_reserved_version_raises_error PASSED    [ 48%] 
+tests/unit/test_model_registry.py::test_unregister_then_get_raises_error PASSED          [ 49%] 
+tests/unit/test_model_registry.py::test_unregister_latest_clears_latest_pointer PASSED   [ 50%] 
+tests/unit/test_model_registry.py::test_unregister_last_version_removes_model_entry PASSED [ 51%]
+tests/unit/test_model_registry.py::test_unregister_nonexistent_raises_error PASSED       [ 52%] 
+tests/unit/test_model_registry.py::test_unregister_reserved_version_raises_error PASSED  [ 52%] 
+tests/unit/test_model_registry.py::test_unregister_non_latest_version_latest_pointer_intact PASSED [ 53%]
+tests/unit/test_model_registry.py::test_list_models_empty_initially PASSED               [ 54%] 
+tests/unit/test_model_registry.py::test_list_models_returns_correct_entries PASSED       [ 55%] 
+tests/unit/test_model_registry.py::test_list_models_excludes_latest_virtual_version PASSED [ 56%]
+tests/unit/test_model_registry.py::test_list_models_has_required_fields PASSED           [ 57%] 
+tests/unit/test_rate_limiter.py::test_rate_limiter_allows_up_to_capacity PASSED          [ 57%] 
+tests/unit/test_rate_limiter.py::test_rate_limiter_blocks_after_capacity_exhausted PASSED [ 58%]
+tests/unit/test_rate_limiter.py::test_rate_limiter_exact_boundary PASSED                 [ 59%] 
+tests/unit/test_rate_limiter.py::test_rate_limiter_refills_after_time_passes FAILED      [ 60%]
+tests/unit/test_rate_limiter.py::test_rate_limiter_partial_refill FAILED                 [ 61%] 
+tests/unit/test_rate_limiter.py::test_rate_limiter_different_clients_independent PASSED  [ 62%] 
+tests/unit/test_rate_limiter.py::test_rate_limiter_multiple_clients_each_limited PASSED  [ 63%] 
+tests/unit/test_rate_limiter.py::test_rate_limiter_reset_restores_full_capacity PASSED   [ 63%] 
+tests/unit/test_rate_limiter.py::test_rate_limiter_bucket_state_decreases_after_request PASSED [ 64%]
+tests/unit/test_rate_limiter.py::test_rate_limiter_new_client_has_full_bucket PASSED     [ 65%] 
+tests/unit/test_text_classifier.py::test_classify_known_samples_correct_label[\u4e2d\u56fd\u961f\u8d62\u5f97\u4e16\u754c\u676f\u5c0f\u7ec4\u8d5b\u9996\u80dc-sports] PASSED [ 66%]
+tests/unit/test_text_classifier.py::test_classify_known_samples_correct_label[NBA\u603b\u51b3\u8d5b\u6e56\u4eba\u961f\u593a\u51a0-sports] PASSED [ 67%]
+tests/unit/test_text_classifier.py::test_classify_known_samples_correct_label[\u4eba\u5de5\u667a\u80fd\u5927\u6a21\u578b\u53d1\u5e03\u5f15\u53d1\u884c\u4e1a\u9707\u52a8-tech] PASSED [ 68%]
+tests/unit/test_text_classifier.py::test_classify_known_samples_correct_label[\u91cf\u5b50\u8ba1\u7b97\u673a\u7a81\u7834\u4f20\u7edf\u8ba1\u7b97\u6781\u9650-tech] PASSED [ 68%]
+tests/unit/test_text_classifier.py::test_classify_known_samples_correct_label[\u56fd\u4ea7\u7535\u5f71\u7968\u623f\u7a81\u7834\u767e\u4ebf\u521b\u5386\u53f2-entertainment] PASSED [ 69%]
+tests/unit/test_text_classifier.py::test_classify_known_samples_correct_label[\u6d41\u884c\u6b4c\u624b\u65b0\u4e13\u8f91\u9996\u65e5\u64ad\u653e\u91cf\u7834\u7eaa\u5f55-entertainment] PASSED [ 70%]
+tests/unit/test_text_classifier.py::test_classify_known_samples_correct_label[A\u80a1\u5e02\u573a\u6210\u4ea4\u91cf\u521b\u5e74\u5185\u65b0\u9ad8-finance] PASSED [ 71%]
+tests/unit/test_text_classifier.py::test_classify_known_samples_correct_label[\u592e\u884c\u5ba3\u5e03\u964d\u51c6\u91ca\u653e\u957f\u671f\u6d41\u52a8\u6027-finance] PASSED [ 72%]
+tests/unit/test_text_classifier.py::test_classify_returns_required_keys PASSED           [ 73%] 
+tests/unit/test_text_classifier.py::test_classify_confidence_in_range PASSED             [ 73%]
+tests/unit/test_text_classifier.py::test_classify_label_is_valid_category PASSED         [ 74%]
+tests/unit/test_text_classifier.py::test_classify_latency_ms_positive PASSED             [ 75%] 
+tests/unit/test_text_classifier.py::test_classify_safe_inputs_no_crash[] PASSED          [ 76%]
+tests/unit/test_text_classifier.py::test_classify_safe_inputs_no_crash[a] PASSED         [ 77%]
+tests/unit/test_text_classifier.py::test_classify_safe_inputs_no_crash[aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa] PASSED [ 78%]
+tests/unit/test_text_classifier.py::test_classify_safe_inputs_no_crash[<script>alert('xss')</script>] PASSED [ 78%]
+tests/unit/test_text_classifier.py::test_classify_safe_inputs_no_crash[' OR 1=1 --] PASSED [ 79%]
+tests/unit/test_text_classifier.py::test_classify_safe_inputs_no_crash[\U0001f389\U0001f38a\U0001f388\U0001f381\U0001f380] PASSED [ 80%]
+tests/unit/test_text_classifier.py::test_classify_safe_inputs_no_crash[\u03b1\u03b2\u03b3\u03b4\u03b5\u03b6\u03b7\u03b8] PASSED [ 81%]
+tests/unit/test_text_classifier.py::test_classify_safe_inputs_no_crash[   \t\n  ] PASSED [ 82%] 
+tests/unit/test_text_classifier.py::test_classify_safe_inputs_no_crash[00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000] PASSED [ 83%]
+tests/unit/test_text_classifier.py::test_batch_classify_count_matches_input PASSED       [ 84%]
+tests/unit/test_text_classifier.py::test_batch_classify_empty_list PASSED                [ 84%] 
+tests/unit/test_text_classifier.py::test_batch_classify_single_item PASSED               [ 85%]
+tests/unit/test_text_classifier.py::test_batch_classify_various_sizes[1] PASSED          [ 86%]
+tests/unit/test_text_classifier.py::test_batch_classify_various_sizes[5] PASSED          [ 87%]
+tests/unit/test_text_classifier.py::test_batch_classify_various_sizes[10] PASSED         [ 88%]
+tests/unit/test_text_generator.py::test_generate_returns_required_keys PASSED            [ 89%] 
+tests/unit/test_text_generator.py::test_generate_text_starts_with_prompt PASSED          [ 89%] 
+tests/unit/test_text_generator.py::test_generate_latency_ms_positive PASSED              [ 90%] 
+tests/unit/test_text_generator.py::test_generate_max_length_zero_no_tokens PASSED        [ 91%] 
+tests/unit/test_text_generator.py::test_generate_tokens_not_exceed_max_length[1] PASSED  [ 92%] 
+tests/unit/test_text_generator.py::test_generate_tokens_not_exceed_max_length[100] PASSED [ 93%]
+tests/unit/test_text_generator.py::test_generate_tokens_not_exceed_max_length[500] PASSED [ 94%]
+tests/unit/test_text_generator.py::test_generate_tokens_not_exceed_max_length[501] PASSED [ 94%]
+tests/unit/test_text_generator.py::test_generate_max_length_one_at_most_one_token PASSED [ 95%] 
+tests/unit/test_text_generator.py::test_generate_tokens_generated_matches_text_length PASSED [ 96%]
+tests/unit/test_text_generator.py::test_generate_empty_prompt_no_crash PASSED            [ 97%] 
+tests/unit/test_text_generator.py::test_generate_short_prompt_no_crash PASSED            [ 98%] 
+tests/unit/test_text_generator.py::test_generate_large_max_length_terminates PASSED      [ 99%] 
+tests/unit/test_text_generator.py::test_predict_is_alias_for_generate PASSED             [100%] 
+
+========================================== FAILURES =========================================== 
+_________________________ test_rate_limiter_refills_after_time_passes _________________________ 
+
+    def test_rate_limiter_refills_after_time_passes() -> None:
+        """时间推进后，令牌应恢复，再次允许请求。
+
+        Mock 策略：
+          第1次调用 time.monotonic() → 返回 0.0（初始化桶）
+          第2次调用 time.monotonic() → 返回 0.0（第1个请求）
+          ...（耗尽令牌）
+          之后调用 time.monotonic() → 返回 10.0（模拟10秒后）
+
+        capacity=5, refill_rate=0.5/s：
+          10秒补充 = 10 * 0.5 = 5 个令牌，桶再次满
+        """
+        limiter = TokenBucketRateLimiter(capacity=5, refill_rate=0.5)
+
+        # 用 side_effect 列表：前 N 次调用依次返回列表中的值
+        # 初始化桶需要一次 time.monotonic()，每次 allow() 需要一次
+        # 总共：1（初始化）+ 5（耗尽）= 6 次 → 都返回 0.0
+        # 第 7 次（下一次 allow）→ 返回 10.0（时间推进10秒）
+        time_values = [0.0] * 20 + [10.0] * 10  # 足够多的值
+
+        with patch("src.middleware.rate_limiter.time.monotonic", side_effect=time_values):      
+            # 耗尽令牌
+            for _ in range(5):
+                limiter.allow("client")
+
+            # 第 6 次被拒绝（此时时间还是 0.0）
+            # 注：由于 side_effect 列表，这次会消耗一个 0.0
+            assert limiter.allow("client") is False, "Should be blocked before time passes"     
+
+            # 时间推进到 10.0 秒（使用列表中的 10.0 值）
+            # 10s * 0.5/s = 5 tokens 补充，允许通过
+            result = limiter.allow("client")
+>           assert result is True, "Should be allowed after tokens refilled"
+E           AssertionError: Should be allowed after tokens refilled
+E           assert False is True
+
+tests\unit\test_rate_limiter.py:105: AssertionError
+------------------------------------ Captured stdout call ------------------------------------- 
+2026-03-17 10:57:37 [info     ] rate_limiter_initialized       [src.middleware.rate_limiter] capacity=5 refill_rate=0.5
+______________________________ test_rate_limiter_partial_refill _______________________________ 
+
+    def test_rate_limiter_partial_refill() -> None:
+        """部分时间流逝应只恢复相应数量的令牌。
+
+        capacity=2, refill_rate=1.0/s：
+          耗尽 2 个令牌后，等 1 秒应恢复 1 个令牌（不是全部）
+        """
+        limiter = TokenBucketRateLimiter(capacity=2, refill_rate=1.0)
+
+        time_values = [0.0] * 10 + [1.0] * 10  # 先 0.0，后 1.0
+
+        with patch("src.middleware.rate_limiter.time.monotonic", side_effect=time_values):      
+            # 耗尽 2 个令牌
+            limiter.allow("client")
+            limiter.allow("client")
+
+            # 立即请求被拒绝（仍在 0.0）
+            assert limiter.allow("client") is False, "Should be blocked"
+
+            # 1秒后：恢复 1 个令牌，刚好能通过 1 次
+>           assert limiter.allow("client") is True, "Should be allowed with 1 refilled token"   
+E           AssertionError: Should be allowed with 1 refilled token
+E           assert False is True
+E            +  where False = allow('client')
+E            +    where allow = <src.middleware.rate_limiter.TokenBucketRateLimiter object at 0x0000012C2B207550>.allow
+
+tests\unit\test_rate_limiter.py:127: AssertionError
+------------------------------------ Captured stdout call ------------------------------------- 
+2026-03-17 10:57:37 [info     ] rate_limiter_initialized       [src.middleware.rate_limiter] capacity=2 refill_rate=1.0
+=================================== short test summary info =================================== 
+FAILED tests/unit/test_rate_limiter.py::test_rate_limiter_refills_after_time_passes - AssertionError: Should be allowed after tokens refilled
+FAILED tests/unit/test_rate_limiter.py::test_rate_limiter_partial_refill - AssertionError: Should be allowed with 1 refilled token
+================================ 2 failed, 117 passed in 2.63s ================================ 

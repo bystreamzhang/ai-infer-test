@@ -1,0 +1,25 @@
+[
+  {"text": "今天的足球比赛非常精彩，主队3比1获胜", "expected_category": "sports"},
+  {"text": "NBA总决赛湖人队历时7场夺冠", "expected_category": "sports"},
+  {"text": "奥运会游泳比赛打破多项世界纪录", "expected_category": "sports"},
+  {"text": "乒乓球世锦赛中国队蝉联冠军", "expected_category": "sports"},
+  {"text": "马拉松比赛吸引两万名跑者参与", "expected_category": "sports"},
+
+  {"text": "新款芯片采用3nm工艺制程，性能大幅提升", "expected_category": "tech"},
+  {"text": "人工智能大模型发布，引发行业震动", "expected_category": "tech"},
+  {"text": "量子计算机突破传统计算极限", "expected_category": "tech"},
+  {"text": "自动驾驶汽车获批上路测试", "expected_category": "tech"},
+  {"text": "5G网络切片技术赋能工业互联网", "expected_category": "tech"},
+
+  {"text": "国产电影票房突破百亿创历史新纪录", "expected_category": "entertainment"},
+  {"text": "流行歌手新专辑首日播放量破纪录", "expected_category": "entertainment"},
+  {"text": "综艺节目收视率连续夺冠全网讨论", "expected_category": "entertainment"},
+  {"text": "电视剧大结局引发全网热议", "expected_category": "entertainment"},
+  {"text": "动漫电影斩获国际大奖备受关注", "expected_category": "entertainment"},
+
+  {"text": "A股市场成交量创年内新高", "expected_category": "finance"},
+  {"text": "央行宣布降准释放长期流动性", "expected_category": "finance"},
+  {"text": "黄金价格创历史新高避险需求旺盛", "expected_category": "finance"},
+  {"text": "人民币兑美元汇率小幅走强", "expected_category": "finance"},
+  {"text": "新能源板块集体爆发涨停潮", "expected_category": "finance"}
+]

@@ -1,0 +1,12 @@
+[
+  {"text": "a", "description": "单字符"},
+  {"text": "<script>alert('xss')</script>", "description": "XSS payload"},
+  {"text": "' OR 1=1 --", "description": "SQL注入"},
+  {"text": "🎉🎊🎈🥳🎁", "description": "纯emoji"},
+  {"text": "     ", "description": "纯空格（注意：这会被Pydantic min_length=1拒绝，API层面422）"},
+  {"text": "。！？……", "description": "纯标点符号"},
+  {"text": "hello world", "description": "纯英文"},
+  {"text": "12345.67890", "description": "纯数字"},
+  {"text": "<html><body><p>这是HTML</p></body></html>", "description": "HTML标签"},
+  {"text": "{}[]()/*-+", "description": "纯特殊符号"}
+]

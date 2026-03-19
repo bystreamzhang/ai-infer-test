@@ -1,0 +1,46 @@
+根本原因 1：Lifespan 没有被触发
+ASGITransport 只负责转发 HTTP 请求，不会触发 ASGI lifespan 事件（startup/shutdown）。所以 _model_registry 和 _inference_engine 始终是 None，导致所有需要模型的请求都抛 RuntimeError: InferenceEngine not initialized。
+
+test_health_returns_200_and_ok_status 唯一通过就是因为 /health 对 _model_registry is None 做了保护，直接返回 models_loaded: 0。
+
+根本原因 2：限流器被触发（429）
+RateLimitMiddleware 默认 capacity=20, refill_rate=10.0。所有测试文件共享同一个 app_client（module scope），加上 test_concurrent_inference.py 发了 50 个并发请求，全部来自同一个 IP 127.0.0.1，桶很快耗尽，后续请求全部返回 429。
+
+修改方案
+需要修改 tests/conftest.py，两处变动：
+
+第一处：在 import 区域新增两行：
+
+
+from src.app import app, lifespan
+from src.middleware.rate_limiter import _default_limiter
+第二处：把 app_client fixture 整体替换为：
+
+
+@pytest_asyncio.fixture(scope="module")
+async def app_client() -> AsyncClient:
+    """FastAPI AsyncClient，每个测试模块共享。
+
+    手动调用 lifespan 触发 startup（ASGITransport 不自动触发 lifespan 事件）。
+    提高限流上限避免集成测试触发 429。
+    """
+    # 集成测试期间提高限流上限，避免高并发测试触发 429
+    # 限流逻辑本身由 test_rate_limiter.py 单元测试覆盖，这里不需要测它
+    _default_limiter._capacity = 10000
+    _default_limiter._buckets.clear()
+
+    async with lifespan(app):
+        async with AsyncClient(
+            transport=ASGITransport(app=app),
+            base_url="http://test",
+        ) as client:
+            yield client
+
+    # 恢复原始配置
+    _default_limiter._capacity = 20
+    _default_limiter._buckets.clear()
+为什么这样改
+问题	原因	修复
+InferenceEngine not initialized	ASGITransport 不触发 lifespan	手动 async with lifespan(app)
+429 Too Many Requests	所有测试共用同一 IP，令牌耗尽	测试期间把 capacity 调大
+_default_limiter._capacity 直接访问私有属性有点 hacky，但这是 mock 中间件时的常见做法——另一种方式是创建带超大限流器的独立 app 实例，但那样改动更大。

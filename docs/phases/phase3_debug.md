@@ -16,6 +16,7 @@
 ### 1. `pdb_debug_example.py` — 断点调试教程
 
 **代码结构**：
+
 - 导入被测服务的TextClassifier
 - 在关键位置设置 `breakpoint()`（Python 3.7+的标准方式）
 - 用大段注释讲解pdb命令：
@@ -35,6 +36,7 @@
 ### 2. `memory_tracker.py` — 内存泄漏检测（核心演示）
 
 **代码结构**：
+
 - 使用 `tracemalloc` 模块
 - 流程：
   1. `tracemalloc.start()` 开始追踪
@@ -60,6 +62,7 @@
 ### 3. `cprofile_analysis.py` — CPU性能剖析
 
 **代码结构**：
+
 - 用 `cProfile.Profile()` 作为context manager
 - 剖析目标：对TextClassifier做1000次predict
 - 用 `pstats.Stats` 排序（cumulative time, total time）
@@ -78,6 +81,7 @@
 ### 4. `flame_graph_gen.py` — 火焰图生成
 
 **代码结构**：
+
 - 这个文件主要是一个启动器+说明文档
 - 用 `subprocess` 启动被测服务（uvicorn）
 - 生成 py-spy 命令（因为py-spy需要attach到进程）
@@ -95,6 +99,7 @@
 ### 5. `log_analyzer.py` — 日志分析工具
 
 **代码结构**：
+
 - 读取structlog输出的JSON格式日志文件
 - 统计分析：
   - 错误率（ERROR级别占比）
@@ -114,7 +119,7 @@
 
 ## 阶段完成标准
 
-- [ ] 每个debug_tools/脚本都能独立运行无报错
-- [ ] memory_tracker.py 能清晰定位到 text_generator.py 的内存泄漏行
-- [ ] cprofile_analysis.py 输出 top 20 耗时函数且保存.prof文件
-- [ ] 所有脚本的注释清晰易懂，可作为独立学习材料
+- [X] 每个debug_tools/脚本都能独立运行无报错
+- [X] memory_tracker.py 能清晰定位到 text_generator.py 的内存泄漏行
+- [X] cprofile_analysis.py 输出 top 20 耗时函数且保存.prof文件
+- [X] 所有脚本的注释清晰易懂，可作为独立学习材料

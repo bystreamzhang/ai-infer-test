@@ -15,6 +15,7 @@
 ## conftest.py
 
 提供以下fixtures：
+
 - `app_client`（scope=module）：FastAPI AsyncClient
 - `classifier_model`（scope=session）：预加载的TextClassifier实例
 - `generator_model`（scope=session）：预加载的TextGenerator实例
@@ -27,9 +28,11 @@
 ## 单元测试
 
 ### `test_text_classifier.py`
+
 注释要解释的方法论：**等价类划分**（正常文本/空串/超长/特殊字符是不同等价类）
 
 测试用例：
+
 - 正常分类（每个类别至少1条已知样本，验证标签正确）
 - 空字符串 → 不崩溃，返回合理结果或抛出明确异常
 - 超长文本（10000+字符）→ 正常处理
@@ -40,9 +43,11 @@
 - 使用 `@pytest.mark.parametrize` 参数化
 
 ### `test_text_generator.py`
+
 注释要解释的方法论：**边界值分析**（max_length在0/1/100/500/501处的行为）
 
 测试用例：
+
 - 正常生成（prompt + max_length=50）
 - max_length边界：0 → 空或异常，1 → 单字符，500 → 正常，501 → 正常（但触发隐藏bug的条件）
 - 空prompt处理
@@ -50,9 +55,11 @@
 - tokens_generated <= max_length
 
 ### `test_cache_layer.py`
+
 注释要解释的方法论：**状态转换测试**（缓存条目的生命周期：不存在→存在→过期→淘汰）
 
 测试用例：
+
 - 基本get/put（存入后能取出，值一致）
 - 未命中返回None
 - LRU淘汰：容量为3时存入4个，第1个被淘汰
@@ -63,9 +70,11 @@
 - invalidate后get返回None
 
 ### `test_rate_limiter.py`
+
 注释要解释的方法论：**时序相关测试** + mock时间
 
 测试用例：
+
 - capacity=5时前5次allow返回True
 - 第6次返回False
 - mock时间推进后令牌恢复，再次允许
@@ -73,7 +82,9 @@
 - 使用 `unittest.mock.patch('time.monotonic')` 控制时间
 
 ### `test_model_registry.py`
+
 测试用例：
+
 - 注册→获取→验证是同一实例
 - 获取不存在的模型→ModelNotFoundError
 - 多版本注册→latest指向最新
@@ -83,9 +94,11 @@
 ## 集成测试
 
 ### `test_api_endpoints.py`
+
 注释要解释：**接口测试的基本原则**（正向/反向/边界）
 
 测试用例：
+
 - `POST /api/v1/classify` 正常请求 → 200 + 正确JSON格式
 - 缺失text字段 → 422
 - `POST /api/v1/generate` 正常请求 → 200
@@ -95,17 +108,21 @@
 - `GET /api/v1/metrics` → 200 + 包含counter/histogram数据
 
 ### `test_inference_pipeline.py`
+
 注释要解释：**端到端测试** vs 集成测试的区别
 
 测试用例：
+
 - 完整推理链路：发请求→返回正确分类结果
 - 缓存生效：相同请求第二次延迟显著降低（至少快50%）
 - 指标更新：请求后metrics中的counter应增加
 
 ### `test_concurrent_inference.py`
+
 注释要解释：**并发测试设计**，如何验证并发控制和无死锁
 
 测试用例：
+
 - asyncio.gather 发起50个并发分类请求
 - 所有请求都返回成功结果（无异常、无死锁）
 - 验证耗时合理（并发4，50个请求，单请求50ms → 总时间约650ms左右）
@@ -114,7 +131,9 @@
 ## 数据驱动测试
 
 ### 测试数据文件
+
 `tests/data_driven/test_data/normal_inputs.json`:
+
 ```json
 [
   {"text": "今天的足球比赛非常精彩，主队3比1获胜", "expected_category": "体育"},
@@ -124,6 +143,7 @@
 ```
 
 `tests/data_driven/test_data/edge_cases.json`:
+
 ```json
 [
   {"text": "", "description": "空字符串"},
@@ -136,6 +156,7 @@
 ```
 
 `tests/data_driven/test_data/malicious_inputs.json`:
+
 ```json
 [
   {"text": "A".repeat(100000), "description": "超长重复字符"},
@@ -145,6 +166,7 @@
 ```
 
 ### `test_equivalence_partition.py`
+
 注释解释：等价类划分方法——把输入空间划分为若干等价类，每类取一个代表测试
 
 - 从JSON加载数据，用 `@pytest.mark.parametrize` 驱动
@@ -153,6 +175,7 @@
 - 对有效类验证分类正确，对无效类验证不崩溃且返回合理响应
 
 ### `test_boundary_values.py`
+
 注释解释：边界值分析——在等价类的边界处重点测试（on/off-by-one）
 
 - 输入长度：0, 1, 9999, 10000, 10001
@@ -162,6 +185,7 @@
 ## 性能测试（MVP: 只做1个）
 
 ### `test_latency_benchmark.py`
+
 - 使用 `pytest-benchmark` 的 `benchmark` fixture
 - 测量单次分类的延迟分布
 - 输出P50/P95/P99
@@ -170,6 +194,7 @@
 ## 混沌测试（MVP: 只做1个）
 
 ### `test_fault_injection.py`
+
 注释解释：故障注入测试的目的——验证系统在异常条件下的行为
 
 - 用 `unittest.mock.patch` mock TextClassifier.predict 抛出 RuntimeError
@@ -179,7 +204,9 @@
 
 ## 阶段完成标准
 
-- [ ] `pytest tests/unit/ -v` 全部通过
-- [ ] `pytest tests/integration/ -v` 全部通过
-- [ ] `pytest tests/data_driven/ -v` 全部通过
-- [ ] `pytest tests/ --cov=src --cov-report=term-missing` 覆盖率 >= 90%
+- [X] `pytest tests/unit/ -v` 全部通过
+- [X] `pytest tests/integration/ -v --html=my_records/integration_report.html --self-contained-html ` 全部通过
+- [X] `pytest tests/data_driven/ -v` 全部通过
+- [X] `pytest tests/performance/ -v -s --benchmark-columns=min,max,mean,stddev,median --benchmark-histogram` 全部通过
+- [X] `pytest tests/chaos/ -v` 全部通过
+- [X] `pytest tests/ --cov=src --cov-report=term-missing` 覆盖率 >= 90%

@@ -1,0 +1,20 @@
+2026-03-19 10:38:06 [info     ] rate_limiter_initialized       [src.middleware.rate_limiter] capacity=20 refill_rate=10.0
+INFO:     Started server process [68188]
+INFO:     Waiting for application startup.
+2026-03-19 10:38:08 [info     ] app_starting                   [src.app]
+2026-03-19 10:38:08 [info     ] model_registry_initialized     [src.services.model_registry]
+2026-03-19 10:38:08 [info     ] initializing TextClassifier    [text_classifier]
+2026-03-19 10:38:08 [info     ] TextClassifier ready           [text_classifier] num_classes=4 num_samples=80
+2026-03-19 10:38:08 [info     ] model_registered               [src.services.model_registry] model_name=text_classifier version=v1.0
+2026-03-19 10:38:08 [info     ] initializing TextGenerator     [text_generator] order=2
+2026-03-19 10:38:08 [info     ] TextGenerator ready            [text_generator] chain_size=346
+2026-03-19 10:38:08 [info     ] model_registered               [src.services.model_registry] model_name=text_generator version=v1.0
+2026-03-19 10:38:08 [info     ] inference_engine_initialized   [src.services.inference_engine] max_concurrency=4 timeout=5.0
+2026-03-19 10:38:08 [info     ] app_started                    [src.app] models=[{'name': 'text_classifier', 'version': 'v1.0', 'created_at': 1773887888.702149}, {'name': 'text_generator', 'version': 'v1.0', 'created_at': 1773887888.704157}]
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://127.0.0.1:8000 (Press CTRL+C to quit)
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+2026-03-19 10:39:26 [info     ] app_shutting_down              [src.app]
+INFO:     Application shutdown complete.
+INFO:     Finished server process [68188]
